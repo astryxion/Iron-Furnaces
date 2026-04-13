@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#X#",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "tag": "c:silver_ingots"
+    },
+    "X": {
+      "item": "ironfurnaces:copper_furnace"
+    }
+  },
+  "result": {
+    "item": "ironfurnaces:upgrade_silver"
+  },
+  "conditions": [
+    {
+      "type": "fabric:tags_populated",
+      "values": [
+        "c:silver_ingots"
+      ]
+    }
+  ]
+}

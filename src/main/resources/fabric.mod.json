@@ -1,0 +1,22 @@
+{
+	"schemaVersion": 1,
+	"id": "ironfurnaces",
+	"version": "${version}",
+	"name": "Iron Furnaces",
+	"description": "Iron Furnaces (Fabric 1.20.1 port)",
+	"authors": ["Iron Furnaces team"],
+	"license": "MIT",
+	"icon": "assets/ironfurnaces/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": ["ironfurnaces.IronFurnaces"],
+		"client": ["ironfurnaces.IronFurnacesClient"]
+	},
+	"mixins": ["ironfurnaces.mixins.json"],
+	"depends": {
+		"fabricloader": ">=0.18.6",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*"
+	}
+}

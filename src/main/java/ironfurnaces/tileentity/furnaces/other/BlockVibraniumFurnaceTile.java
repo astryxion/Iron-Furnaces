@@ -1,0 +1,46 @@
+/*    */ package ironfurnaces.tileentity.furnaces.other;
+/*    */ import ironfurnaces.Config;
+/*    */ import ironfurnaces.container.furnaces.other.BlockVibraniumFurnaceContainer;
+/*    */ import ironfurnaces.init.Registration;
+/*    */ import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
+/*    */ import net.minecraft.core.BlockPos;
+/*    */ import net.minecraft.world.entity.player.Inventory;
+/*    */ import net.minecraft.world.entity.player.Player;
+/*    */ import net.minecraft.world.inventory.AbstractContainerMenu;
+/*    */ import net.minecraft.world.level.block.entity.BlockEntityType;
+/*    */ import net.minecraft.world.level.block.state.BlockState;
+/*    */ import net.minecraftforge.common.ForgeConfigSpec;
+/*    */ 
+/*    */ public class BlockVibraniumFurnaceTile extends BlockIronFurnaceTileBase {
+/*    */   public BlockVibraniumFurnaceTile(BlockPos pos, BlockState state) {
+/* 16 */     super((BlockEntityType)Registration.VIBRANIUM_FURNACE_TILE.get(), pos, state);
+/*    */   }
+/*    */ 
+/*    */   
+/*    */   public ForgeConfigSpec.IntValue getCookTimeConfig() {
+/* 21 */     return Config.vibraniumFurnaceSpeed;
+/*    */   }
+/*    */ 
+/*    */   
+/*    */   public String IgetName() {
+/* 26 */     return "container.ironfurnaces.vibranium_furnace";
+/*    */   }
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */   
+/*    */   public AbstractContainerMenu IcreateMenu(int i, Inventory playerInventory, Player playerEntity) {
+/* 33 */     return (AbstractContainerMenu)new BlockVibraniumFurnaceContainer(i, this.level, this.worldPosition, playerInventory, playerEntity);
+/*    */   }
+/*    */ 
+/*    */   
+/*    */   public int getTier() {
+/* 38 */     return ((Integer)Config.vibraniumFurnaceTier.get()).intValue();
+/*    */   }
+/*    */ }
+
+
+/* Location:              C:\Users\tinop\curseforge\minecraft\Instances\wdeqw\mods\ironfurnaces-1.20.1-4.1.8.jar!\ironfurnaces\tileentity\furnaces\other\BlockVibraniumFurnaceTile.class
+ * Java compiler version: 17 (61.0)
+ * JD-Core Version:       1.1.3
+ */
