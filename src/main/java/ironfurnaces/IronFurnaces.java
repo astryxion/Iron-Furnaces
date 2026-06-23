@@ -17,6 +17,7 @@
 package ironfurnaces;
 
 import com.mojang.logging.LogUtils;
+import ironfurnaces.init.AtmRecipeSupport;
 import ironfurnaces.init.ClientSetup;
 import ironfurnaces.init.ModSetup;
 import ironfurnaces.init.Registration;
@@ -54,6 +55,9 @@ public class IronFurnaces {
         ironfurnaces.init.Registration.init(modEventBus);
 
         NeoForge.EVENT_BUS.addListener(EventHandler::explosionEvent);
+        NeoForge.EVENT_BUS.addListener(AtmRecipeSupport::onAddServerReloadListeners);
+        NeoForge.EVENT_BUS.addListener(AtmRecipeSupport::onServerStarted);
+        NeoForge.EVENT_BUS.addListener(AtmRecipeSupport::onServerStopping);
     }
 
     private void registerCapabilities(RegisterCapabilitiesEvent event) {

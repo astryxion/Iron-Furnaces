@@ -33,14 +33,13 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.level.Level;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.Level;
-import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.event.EventHooks;
 
 import java.util.List;
@@ -147,8 +146,8 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 
 
 
-        if (ModList.get().isLoaded("allthemodium"))
-        {
+        Level level = Minecraft.getInstance().level;
+        if (level != null && Registration.isAtmContentAvailable(level.registryAccess())) {
             registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.ALLTHEMODIUM_FURNACE.get()));
             registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.VIBRANIUM_FURNACE.get()));
             registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.UNOBTAINIUM_FURNACE.get()));

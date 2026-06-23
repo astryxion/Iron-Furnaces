@@ -40,9 +40,13 @@ import ironfurnaces.tileentity.furnaces.*;
 import ironfurnaces.tileentity.furnaces.other.BlockAllthemodiumFurnaceTile;
 import ironfurnaces.tileentity.furnaces.other.BlockUnobtainiumFurnaceTile;
 import ironfurnaces.tileentity.furnaces.other.BlockVibraniumFurnaceTile;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.tags.TagKey;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
@@ -55,6 +59,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.registries.DeferredBlock;
@@ -83,6 +88,17 @@ public class Registration {
 
     //private static final DeferredRegister<EntityType<?>> ENTITIES = new DeferredRegister<>(ForgeRegistries.ENTITIES, MOD_ID);
     //private static final DeferredRegister<ModDimension> DIMENSIONS = new DeferredRegister<>(ForgeRegistries.MOD_DIMENSIONS, MOD_ID);
+
+    private static final TagKey<Item> ALLTHEMODIUM_INGOTS = TagKey.create(Registries.ITEM, Identifier.parse("c:ingots/allthemodium"));
+
+    public static boolean isAtmContentAvailable(HolderLookup.Provider registries) {
+        if (ModList.get().isLoaded("allthemodium")) {
+            return true;
+        }
+        return registries.lookupOrThrow(Registries.ITEM).get(ALLTHEMODIUM_INGOTS)
+                .map(tag -> tag.size() > 0)
+                .orElse(false);
+    }
 
     public static void init(IEventBus modEventBus) {
         BLOCKS.register(modEventBus);
@@ -317,6 +333,12 @@ public class Registration {
                 output.accept(ironfurnaces.init.Registration.COPPER_FURNACE_ITEM.get());
                 output.accept(ironfurnaces.init.Registration.SILVER_FURNACE_ITEM.get());
 
+                if (isAtmContentAvailable(parameters.holders())) {
+                    output.accept(ironfurnaces.init.Registration.ALLTHEMODIUM_FURNACE_ITEM.get());
+                    output.accept(ironfurnaces.init.Registration.VIBRANIUM_FURNACE_ITEM.get());
+                    output.accept(ironfurnaces.init.Registration.UNOBTAINIUM_FURNACE_ITEM.get());
+                }
+
                 output.accept(ironfurnaces.init.Registration.IRON_UPGRADE.get());
                 output.accept(ironfurnaces.init.Registration.GOLD_UPGRADE.get());
                 output.accept(ironfurnaces.init.Registration.DIAMOND_UPGRADE.get());
@@ -326,6 +348,12 @@ public class Registration {
                 output.accept(ironfurnaces.init.Registration.NETHERITE_UPGRADE.get());
                 output.accept(ironfurnaces.init.Registration.COPPER_UPGRADE.get());
                 output.accept(ironfurnaces.init.Registration.SILVER_UPGRADE.get());
+
+                if (isAtmContentAvailable(parameters.holders())) {
+                    output.accept(ironfurnaces.init.Registration.ALLTHEMODIUM_UPGRADE.get());
+                    output.accept(ironfurnaces.init.Registration.VIBRANIUM_UPGRADE.get());
+                    output.accept(ironfurnaces.init.Registration.UNOBTAINIUM_UPGRADE.get());
+                }
 
                 output.accept(ironfurnaces.init.Registration.OBSIDIAN2_UPGRADE.get());
                 output.accept(ironfurnaces.init.Registration.IRON2_UPGRADE.get());

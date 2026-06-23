@@ -82,6 +82,11 @@ public class FEnergyStorage extends SimpleEnergyHandler {
     }
 
     public void setEnergy(int energy) {
+        if (energy > capacity) {
+            energy = capacity;
+        } else if (energy < 0) {
+            energy = 0;
+        }
         set(energy);
     }
 
