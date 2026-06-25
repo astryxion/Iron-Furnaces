@@ -34,6 +34,9 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.Fluids;
+import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
@@ -45,6 +48,9 @@ public abstract class BlockIronFurnaceContainerBase extends AbstractContainerMen
     protected Player playerEntity;
     protected IItemHandler playerInventory;
     protected final Level world;
+    protected int fluidAmountMb;
+    protected int fluidCapacityMb = 5000;
+    protected int fluidType;
 
 
 
@@ -228,6 +234,46 @@ public abstract class BlockIronFurnaceContainerBase extends AbstractContainerMen
             @Override
             public void set(int value) {
                 te.generatorRecentRecipeRF = value;
+            }
+        });
+        addDataSlot(new DataSlot() {
+            @Override
+            public int get() {
+                long raw = te.getFluidStorage().getAmountAsLong(0);
+                return (int) ((raw * 1000L) / FluidType.BUCKET_VOLUME);
+            }
+
+            @Override
+            public void set(int value) {
+                fluidAmountMb = Math.max(0, value);
+            }
+        });
+        addDataSlot(new DataSlot() {
+            @Override
+            public int get() {
+                var resource = te.getFluidStorage().getResource(0);
+                long raw = te.getFluidStorage().getCapacityAsLong(0, resource.isEmpty() ? FluidResource.of(Fluids.LAVA) : resource);
+                return (int) ((raw * 1000L) / FluidType.BUCKET_VOLUME);
+            }
+
+            @Override
+            public void set(int value) {
+                fluidCapacityMb = Math.max(1, value);
+            }
+        });
+        addDataSlot(new DataSlot() {
+            @Override
+            public int get() {
+                var fluid = te.getFluidStorage().getResource(0);
+                if (fluid.equals(FluidResource.of(Fluids.LAVA))) {
+                    return 1;
+                }
+                return fluid.isEmpty() ? 0 : 2;
+            }
+
+            @Override
+            public void set(int value) {
+                fluidType = value;
             }
         });
     }
@@ -488,6 +534,18 @@ public abstract class BlockIronFurnaceContainerBase extends AbstractContainerMen
     public boolean isGeneratorBurning()
     {
         return te.generatorBurn > 0;
+    }
+
+    public int getFluidAmountMb() {
+        return fluidAmountMb;
+    }
+
+    public int getFluidCapacityMb() {
+        return fluidCapacityMb;
+    }
+
+    public int getFluidType() {
+        return fluidType;
     }
 
 
