@@ -1,4 +1,4 @@
-﻿{
+{
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
     "ironfurnaces:iron_furnace",
@@ -14,13 +14,12 @@
     "id": "ironfurnaces:rainbow_plating",
     "count": 8
   },
-  "neoforge:conditions": [
+  "fabric:load_conditions": [
     {
-      "type": "neoforge:not",
-      "value": {
-        "type": "neoforge:tag_empty",
-        "tag": "c:ingots/silver"
-      }
+      "condition": "fabric:tags_populated",
+      "values": [
+        "c:ingots/silver"
+      ]
     }
   ]
 }

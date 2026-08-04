@@ -98,7 +98,6 @@ public class SlotIronFurnaceOutputFactory extends Slot {
         }
 
         this.removeCount = 0;
-        net.neoforged.neoforge.event.EventHooks.firePlayerSmeltedEvent(this.player, stack, this.removeCount);
     }
 
 }

@@ -22,6 +22,6 @@ public class ItemUpgradeObsidian2 extends ItemUpgrade {
 
 
     public ItemUpgradeObsidian2(Properties properties) {
-        super(properties, ironfurnaces.init.Registration.CRYSTAL_FURNACE.get(), ironfurnaces.init.Registration.OBSIDIAN_FURNACE.get());
+        super(properties, ironfurnaces.init.Registration.CRYSTAL_FURNACE, ironfurnaces.init.Registration.OBSIDIAN_FURNACE);
     }
 }

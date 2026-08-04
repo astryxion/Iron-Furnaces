@@ -34,14 +34,13 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.level.Level;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.neoforged.neoforge.event.EventHooks;
+import net.minecraft.world.level.Level;
 
 import java.util.List;
 
@@ -78,22 +77,22 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
     public void registerRecipes(IRecipeRegistration registration) {
         Level level = Minecraft.getInstance().level;
         boolean silverAvailable = level != null && Registration.isSilverContentAvailable(level.registryAccess());
-        boolean atmAvailable = level != null && Registration.isAtmContentAvailable(level.registryAccess());
+        boolean atmAvailable = Registration.isAtmContentAvailable();
 
         List<ItemStack> hidden = Lists.newArrayList();
         if (!atmAvailable) {
-            hidden.add(new ItemStack(Registration.ALLTHEMODIUM_FURNACE_ITEM.get()));
-            hidden.add(new ItemStack(Registration.VIBRANIUM_FURNACE_ITEM.get()));
-            hidden.add(new ItemStack(Registration.UNOBTAINIUM_FURNACE_ITEM.get()));
-            hidden.add(new ItemStack(Registration.ALLTHEMODIUM_UPGRADE.get()));
-            hidden.add(new ItemStack(Registration.VIBRANIUM_UPGRADE.get()));
-            hidden.add(new ItemStack(Registration.UNOBTAINIUM_UPGRADE.get()));
+            hidden.add(new ItemStack(Registration.ALLTHEMODIUM_FURNACE_ITEM));
+            hidden.add(new ItemStack(Registration.VIBRANIUM_FURNACE_ITEM));
+            hidden.add(new ItemStack(Registration.UNOBTAINIUM_FURNACE_ITEM));
+            hidden.add(new ItemStack(Registration.ALLTHEMODIUM_UPGRADE));
+            hidden.add(new ItemStack(Registration.VIBRANIUM_UPGRADE));
+            hidden.add(new ItemStack(Registration.UNOBTAINIUM_UPGRADE));
         }
         if (!silverAvailable) {
-            hidden.add(new ItemStack(Registration.SILVER_FURNACE_ITEM.get()));
-            hidden.add(new ItemStack(Registration.SILVER_UPGRADE.get()));
-            hidden.add(new ItemStack(Registration.SILVER2_UPGRADE.get()));
-            hidden.add(new ItemStack(Registration.GOLD2_UPGRADE.get()));
+            hidden.add(new ItemStack(Registration.SILVER_FURNACE_ITEM));
+            hidden.add(new ItemStack(Registration.SILVER_UPGRADE));
+            hidden.add(new ItemStack(Registration.SILVER2_UPGRADE));
+            hidden.add(new ItemStack(Registration.GOLD2_UPGRADE));
         }
         if (!hidden.isEmpty()) {
             registration.getIngredientManager().removeIngredientsAtRuntime(VanillaTypes.ITEM_STACK, hidden);
@@ -104,8 +103,7 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
             var fuelValues = level.fuelValues();
             for (Item item : BuiltInRegistries.ITEM.stream().toList()) {
                 ItemStack stack = new ItemStack(item);
-                int burnTime = stack.getBurnTime(RecipeType.SMELTING, fuelValues);
-                burnTime = EventHooks.getItemBurnTime(stack, burnTime, RecipeType.SMELTING, fuelValues);
+                int burnTime = fuelValues.burnDuration(stack);
                 if (burnTime > 0) {
                     recipes.add(new SimpleGeneratorRecipe(burnTime * 20, stack));
                 }
@@ -117,8 +115,8 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
         Minecraft mc = Minecraft.getInstance();
         if (mc.hasSingleplayerServer()) {
             RecipeManager recipeManager = mc.getSingleplayerServer().overworld().recipeAccess();
-            for (RecipeHolder<?> holder : recipeManager.recipeMap().byType(Registration.GENERATOR_RECIPE_TYPE.get())) {
-                if (holder.value() instanceof GeneratorRecipe gr) {
+            for (RecipeHolder<?> holder : recipeManager.getRecipes()) {
+                if (holder.value().getType() == Registration.GENERATOR_RECIPE_TYPE && holder.value() instanceof GeneratorRecipe gr) {
                     recipes1.add(gr);
                 }
             }
@@ -140,38 +138,41 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registry) {
-        registry.addCraftingStation(RecipeTypes.BLASTING, new ItemStack(Registration.BLASTING_AUGMENT.get()));
-        registry.addCraftingStation(RecipeTypes.SMOKING, new ItemStack(Registration.SMOKING_AUGMENT.get()));
+        registry.addCraftingStation(RecipeTypes.BLASTING, new ItemStack(Registration.BLASTING_AUGMENT));
+        registry.addCraftingStation(RecipeTypes.SMOKING, new ItemStack(Registration.SMOKING_AUGMENT));
 
-        registry.addCraftingStation(RecipeTypesJei.GENERATOR_REGULAR, new ItemStack(Registration.GENERATOR_AUGMENT.get()));
-        registry.addCraftingStation(RecipeTypesJei.GENERATOR_BLASTING, new ItemStack(Registration.GENERATOR_AUGMENT.get()));
-        registry.addCraftingStation(RecipeTypesJei.GENERATOR_SMOKING, new ItemStack(Registration.GENERATOR_AUGMENT.get()));
+        registry.addCraftingStation(RecipeTypesJei.GENERATOR_REGULAR, new ItemStack(Registration.GENERATOR_AUGMENT));
+        registry.addCraftingStation(RecipeTypesJei.GENERATOR_BLASTING, new ItemStack(Registration.GENERATOR_AUGMENT));
+        registry.addCraftingStation(RecipeTypesJei.GENERATOR_SMOKING, new ItemStack(Registration.GENERATOR_AUGMENT));
 
-        registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.FACTORY_AUGMENT.get()));
+        registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.FACTORY_AUGMENT));
 
-        registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.IRON_FURNACE.get()));
-        registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.GOLD_FURNACE.get()));
-        registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.DIAMOND_FURNACE.get()));
-        registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.EMERALD_FURNACE.get()));
-        registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.OBSIDIAN_FURNACE.get()));
-        registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.CRYSTAL_FURNACE.get()));
-        registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.NETHERITE_FURNACE.get()));
-        registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.COPPER_FURNACE.get()));
+        registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.IRON_FURNACE));
+        registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.GOLD_FURNACE));
+        registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.DIAMOND_FURNACE));
+        registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.EMERALD_FURNACE));
+        registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.OBSIDIAN_FURNACE));
+        registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.CRYSTAL_FURNACE));
+        registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.NETHERITE_FURNACE));
+        registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.COPPER_FURNACE));
         Level level = Minecraft.getInstance().level;
         if (level != null && Registration.isSilverContentAvailable(level.registryAccess())) {
-            registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.SILVER_FURNACE.get()));
+            registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.SILVER_FURNACE));
         }
 
-        registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.MILLION_FURNACE.get()));
 
-        registry.addCraftingStation(RecipeTypesJei.GENERATOR_BLASTING, new ItemStack(Registration.BLASTING_AUGMENT.get()));
-        registry.addCraftingStation(RecipeTypesJei.GENERATOR_SMOKING, new ItemStack(Registration.SMOKING_AUGMENT.get()));
+        registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.MILLION_FURNACE));
 
-        if (level != null && Registration.isAtmContentAvailable(level.registryAccess())) {
-            registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.ALLTHEMODIUM_FURNACE.get()));
-            registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.VIBRANIUM_FURNACE.get()));
-            registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.UNOBTAINIUM_FURNACE.get()));
+        registry.addCraftingStation(RecipeTypesJei.GENERATOR_BLASTING, new ItemStack(Registration.BLASTING_AUGMENT));
+        registry.addCraftingStation(RecipeTypesJei.GENERATOR_SMOKING, new ItemStack(Registration.SMOKING_AUGMENT));
+
+
+
+        if (Registration.isAtmContentAvailable())
+        {
+            registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.ALLTHEMODIUM_FURNACE));
+            registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.VIBRANIUM_FURNACE));
+            registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.UNOBTAINIUM_FURNACE));
         }
     }
 }
-

@@ -46,7 +46,7 @@ public class ItemFurnaceCopy extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext pContext, TooltipDisplay tooltipDisplay, Consumer<Component> components, TooltipFlag pTooltipFlag) {
-        CustomData customData = stack.get(ironfurnaces.init.Registration.FURNACE_SETTINGS.get());
+        CustomData customData = stack.get(ironfurnaces.init.Registration.FURNACE_SETTINGS);
         if (customData != null) {
             CompoundTag tag = customData.copyTag();
             if (!tag.isEmpty()) {
@@ -90,7 +90,7 @@ public class ItemFurnaceCopy extends Item {
             }
 
             ItemStack stack = ctx.getItemInHand();
-            CustomData customData = stack.get(ironfurnaces.init.Registration.FURNACE_SETTINGS.get());
+            CustomData customData = stack.get(ironfurnaces.init.Registration.FURNACE_SETTINGS);
             if (customData != null) {
                 CompoundTag tag = customData.copyTag();
                 if (!tag.isEmpty()) {
@@ -113,7 +113,8 @@ public class ItemFurnaceCopy extends Item {
 
                 }
             }
-            world.markAndNotifyBlock(pos, world.getChunkAt(pos), world.getBlockState(pos).getBlock().defaultBlockState(), world.getBlockState(pos), 3, 3);
+            var st = world.getBlockState(pos);
+            world.sendBlockUpdated(pos, st, st, net.minecraft.world.level.block.Block.UPDATE_CLIENTS);
             ctx.getPlayer().sendSystemMessage(Component.literal("Settings applied"));
         }
 

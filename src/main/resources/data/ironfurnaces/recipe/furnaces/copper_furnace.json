@@ -1,1 +1,23 @@
-{"type":"minecraft:crafting_shaped","pattern":["###","#X#","###"],"key":{"#":"#c:ingots/copper","X":"minecraft:furnace"},"result":{"id":"ironfurnaces:copper_furnace"},"neoforge:conditions":[{"value":{"type":"neoforge:tag_empty","tag":"c:ingots/copper"},"type":"neoforge:not"}]}
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#X#",
+    "###"
+  ],
+  "key": {
+    "#": "#c:ingots/copper",
+    "X": "minecraft:furnace"
+  },
+  "result": {
+    "id": "ironfurnaces:copper_furnace"
+  },
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:tags_populated",
+      "values": [
+        "c:ingots/copper"
+      ]
+    }
+  ]
+}

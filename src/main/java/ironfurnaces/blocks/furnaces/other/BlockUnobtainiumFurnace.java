@@ -26,7 +26,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class BlockUnobtainiumFurnace extends BlockIronFurnaceBase {
 
@@ -47,6 +47,6 @@ public class BlockUnobtainiumFurnace extends BlockIronFurnaceBase {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return createFurnaceTicker(level, type, ironfurnaces.init.Registration.UNOBTAINIUM_FURNACE_TILE.get());
+        return createFurnaceTicker(level, type, ironfurnaces.init.Registration.UNOBTAINIUM_FURNACE_TILE);
     }
 }

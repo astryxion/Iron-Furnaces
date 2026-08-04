@@ -18,11 +18,13 @@ package ironfurnaces.tileentity.furnaces;
 
 import com.google.common.collect.Maps;
 import ironfurnaces.Config;
+import ironfurnaces.capability.PlayerFurnacesListProvider;
 import ironfurnaces.blocks.furnaces.BlockIronFurnaceBase;
 import ironfurnaces.blocks.furnaces.BlockMillionFurnace;
 import ironfurnaces.energy.FEnergyStorage;
 import ironfurnaces.init.Registration;
 import ironfurnaces.items.ItemHeater;
+import ironfurnaces.items.ItemRainbowCoal;
 import ironfurnaces.items.augments.*;
 import ironfurnaces.recipes.GeneratorRecipe;
 import ironfurnaces.tileentity.BlockWirelessEnergyHeaterTile;
@@ -38,7 +40,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -68,28 +69,21 @@ import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.FluidType;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
-import net.neoforged.neoforge.common.ModConfigSpec;
-import net.neoforged.neoforge.event.EventHooks;
-import net.neoforged.neoforge.transfer.ResourceHandler;
-import net.neoforged.neoforge.transfer.energy.EnergyHandler;
-import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
-import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
+import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 import static ironfurnaces.init.ModSetup.*;
@@ -103,8 +97,6 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
     public static final int AUGMENT_BLUE = 5;
     public static final int GENERATOR_FUEL = 6;
     public static final int[] FACTORY_INPUT = new int[]{7, 8, 9, 10, 11, 12};
-    public static final int FLUID_TANK_CAPACITY = FluidType.BUCKET_VOLUME * 5;
-    private static final Identifier SOUL_LAVA_ID = Identifier.fromNamespaceAndPath("allthemodium", "soul_lava");
     //public Player savedPlayer;
 
     public final int[] provides = new int[Direction.values().length];
@@ -154,18 +146,6 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
         }
     };
 
-    private final FluidStacksResourceHandler fluidStorage = new FluidStacksResourceHandler(1, FLUID_TANK_CAPACITY) {
-        @Override
-        public boolean isValid(int index, FluidResource resource) {
-            return isGenerator() && isAllowedGeneratorFluid(resource);
-        }
-
-        @Override
-        protected void onContentsChanged(int index, net.neoforged.neoforge.fluids.FluidStack previousContents) {
-            setChanged();
-        }
-    };
-
     public BlockIronFurnaceTileBase(BlockEntityType<?> tileentitytypeIn, BlockPos pos, BlockState state) {
         super(tileentitytypeIn, pos, state, 19);
         recipeType = RecipeType.SMELTING;
@@ -191,7 +171,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
     }
 
     public int getCapacity() {
-        return energyStorage.getCapacity();
+        return energyStorage.getCapacityAsInt();
     }
 
     public void setEnergy(int energy) {
@@ -215,7 +195,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
         if (level instanceof ServerLevel serverLevel) {
             return serverLevel.getServer().getRecipeManager().getRecipeFor(type, input, level).isPresent();
         }
-        MinecraftServer integrated = ServerLifecycleHooks.getCurrentServer();
+        MinecraftServer integrated = level.getServer();
         if (integrated != null) {
             return integrated.getRecipeManager().getRecipeFor(type, input, level).isPresent();
         }
@@ -241,7 +221,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
         if (level instanceof ServerLevel serverLevel) {
             return serverLevel.getServer().getRecipeManager().getRecipeFor(type, input, level).orElse(null);
         }
-        MinecraftServer integrated = ServerLifecycleHooks.getCurrentServer();
+        MinecraftServer integrated = level.getServer();
         if (integrated != null) {
             return integrated.getRecipeManager().getRecipeFor(type, input, level).orElse(null);
         }
@@ -283,11 +263,11 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
             return false;
         }
         SingleRecipeInput input = new SingleRecipeInput(stack);
-        var generatorType = ironfurnaces.init.Registration.GENERATOR_RECIPE_TYPE.get();
+        var generatorType = ironfurnaces.init.Registration.GENERATOR_RECIPE_TYPE;
         if (this.level instanceof ServerLevel serverLevel) {
             return serverLevel.getServer().getRecipeManager().getRecipeFor(generatorType, input, this.level).isPresent();
         }
-        MinecraftServer integrated = ServerLifecycleHooks.getCurrentServer();
+        MinecraftServer integrated = this.level.getServer();
         if (integrated != null) {
             return integrated.getRecipeManager().getRecipeFor(generatorType, input, this.level).isPresent();
         }
@@ -300,11 +280,11 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
             return null;
         }
         SingleRecipeInput input = new SingleRecipeInput(stack);
-        var generatorType = ironfurnaces.init.Registration.GENERATOR_RECIPE_TYPE.get();
+        var generatorType = ironfurnaces.init.Registration.GENERATOR_RECIPE_TYPE;
         if (this.level instanceof ServerLevel serverLevel) {
             return serverLevel.getServer().getRecipeManager().getRecipeFor(generatorType, input, this.level).orElse(null);
         }
-        MinecraftServer integrated = ServerLifecycleHooks.getCurrentServer();
+        MinecraftServer integrated = this.level.getServer();
         if (integrated != null) {
             return integrated.getRecipeManager().getRecipeFor(generatorType, input, this.level).orElse(null);
         }
@@ -398,7 +378,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
 
     }
 
-    public ModConfigSpec.IntValue getCookTimeConfig() {
+    public Config.IntValue getCookTimeConfig() {
         return null;
     }
 
@@ -521,57 +501,6 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
             burn *= 2;
         }
         return burn;
-    }
-
-    public ResourceHandler<FluidResource> getFluidStorage() {
-        return fluidStorage;
-    }
-
-    public boolean isAllowedGeneratorFluid(FluidResource resource) {
-        if (resource.equals(FluidResource.of(Fluids.LAVA))) {
-            return true;
-        }
-        Fluid soulLava = BuiltInRegistries.FLUID.getOptional(SOUL_LAVA_ID).orElse(null);
-        return soulLava != null && resource.equals(FluidResource.of(soulLava));
-    }
-
-    public int getFluidGeneratorBurn() {
-        if (getItem(AUGMENT_RED).getItem() instanceof ItemAugmentSmoking || getItem(AUGMENT_RED).getItem() instanceof ItemAugmentBlasting) {
-            return 0;
-        }
-
-        FluidResource fluid = fluidStorage.getResource(0);
-        if (!isAllowedGeneratorFluid(fluid)) {
-            return 0;
-        }
-        if (fluidStorage.getAmountAsLong(0) < FluidType.BUCKET_VOLUME) {
-            return 0;
-        }
-
-        int lavaBurn = getBurnTime(new ItemStack(Items.LAVA_BUCKET), RecipeType.SMELTING);
-        int burn = fluid.equals(FluidResource.of(Fluids.LAVA)) ? lavaBurn : lavaBurn * 6;
-
-        if (getItem(AUGMENT_GREEN).getItem() instanceof ItemAugmentSpeed) {
-            burn /= 2;
-        } else if (getItem(AUGMENT_GREEN).getItem() instanceof ItemAugmentFuel) {
-            burn *= 2;
-        }
-        return burn;
-    }
-
-    public boolean consumeFluidGeneratorFuel() {
-        FluidResource fluid = fluidStorage.getResource(0);
-        if (!isAllowedGeneratorFluid(fluid)) {
-            return false;
-        }
-        try (Transaction tx = Transaction.openRoot()) {
-            int extracted = fluidStorage.extract(fluid, FluidType.BUCKET_VOLUME, tx);
-            if (extracted == FluidType.BUCKET_VOLUME) {
-                tx.commit();
-                return true;
-            }
-        }
-        return false;
     }
 
     private boolean isItemGeneratorFuel(ItemStack stack) {
@@ -794,7 +723,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                             if (level.getPlayerByUUID(furnaceTile.owner) != null)
                             {
 
-                                List<BlockPos> furnacesBlockPos = level.getPlayerByUUID(furnaceTile.owner).getData(ironfurnaces.init.Registration.PLAYER_FURNACES_LIST.get()).furnacesList.get();
+                                List<BlockPos> furnacesBlockPos = level.getPlayerByUUID(furnaceTile.owner).getAttachedOrCreate(ironfurnaces.init.Registration.PLAYER_FURNACES_LIST, PlayerFurnacesListProvider::new).furnacesList.get();
                                 if (!furnacesBlockPos.isEmpty())
                                 {
 
@@ -981,7 +910,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
             if (!e.level.isClientSide()) {
 
                 if (!e.energyStorage.canReceiveEnergy()) {
-                    e.energyStorage.setMaxReceive(e.energyStorage.getCapacity());
+                    e.energyStorage.setMaxReceive(e.energyStorage.getCapacityAsInt());
                 }
                 if (e.energyStorage.canExtractEnergy()) {
                     e.energyStorage.setMaxExtract(0);
@@ -1075,29 +1004,34 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                     e.energyStorage.setMaxReceive(0);
                 }
                 if (!e.energyStorage.canExtractEnergy()) {
-                    e.energyStorage.setMaxExtract(e.energyStorage.getCapacity());
+                    e.energyStorage.setMaxExtract(e.energyStorage.getCapacityAsInt());
                 }
                 if (e.getEnergy() < e.getCapacity()) {
-                    if (e.generatorBurn <= 0) {
-                        if (!e.getItem(GENERATOR_FUEL).isEmpty() && e.getGeneratorBurn() > 0)
+                    if (!e.getItem(GENERATOR_FUEL).isEmpty() && e.generatorBurn <= 0) {
+                        if (e.getGeneratorBurn() > 0)
                         {
                             e.generatorBurn = e.getGeneratorBurn();
                             e.generatorRecentRecipeRF = (int) e.generatorBurn;
-                            ItemStackTemplate genRem = e.getItem(GENERATOR_FUEL).getCraftingRemainder();
-                            if (genRem != null) {
-                                e.setItem(GENERATOR_FUEL, genRem.create());
-                            } else if (!e.getItem(GENERATOR_FUEL).isEmpty()) {
-                                e.getItem(GENERATOR_FUEL).shrink(1);
-                                if (e.getItem(GENERATOR_FUEL).isEmpty()) {
-                                    ItemStackTemplate genRem2 = e.getItem(GENERATOR_FUEL).getCraftingRemainder();
-                                    e.setItem(GENERATOR_FUEL, genRem2 != null ? genRem2.create() : ItemStack.EMPTY);
+                            ItemStack genFuel = e.getItem(GENERATOR_FUEL);
+                            if (genFuel.getItem() instanceof ItemRainbowCoal) {
+                                int d = genFuel.getDamageValue();
+                                int max = genFuel.getMaxDamage();
+                                if (d + 1 >= max) {
+                                    e.setItem(GENERATOR_FUEL, ItemStack.EMPTY);
+                                } else {
+                                    genFuel.setDamageValue(d + 1);
                                 }
-                            }
-                        } else if (e.getItem(GENERATOR_FUEL).isEmpty()) {
-                            int fluidBurn = e.getFluidGeneratorBurn();
-                            if (fluidBurn > 0 && e.consumeFluidGeneratorFuel()) {
-                                e.generatorBurn = fluidBurn;
-                                e.generatorRecentRecipeRF = fluidBurn;
+                            } else {
+                                ItemStackTemplate genRem = genFuel.getCraftingRemainder();
+                                if (genRem != null) {
+                                    e.setItem(GENERATOR_FUEL, genRem.create());
+                                } else if (!genFuel.isEmpty()) {
+                                    genFuel.shrink(1);
+                                    if (genFuel.isEmpty()) {
+                                        ItemStackTemplate genRem2 = genFuel.getCraftingRemainder();
+                                        e.setItem(GENERATOR_FUEL, genRem2 != null ? genRem2.create() : ItemStack.EMPTY);
+                                    }
+                                }
                             }
                         }
 
@@ -1247,14 +1181,24 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                         if (e.isBurning()) {
                             flag1 = true;
                             if (!(itemstack.getItem() instanceof ItemHeater)) {
-                                ItemStackTemplate fuelRem = itemstack.getCraftingRemainder();
-                                if (fuelRem != null) {
-                                    e.setItem(FUEL, fuelRem.create());
-                                } else if (!itemstack.isEmpty()) {
-                                    itemstack.shrink(1);
-                                    if (itemstack.isEmpty()) {
-                                        ItemStackTemplate fuelRem2 = itemstack.getCraftingRemainder();
-                                        e.setItem(FUEL, fuelRem2 != null ? fuelRem2.create() : ItemStack.EMPTY);
+                                if (itemstack.getItem() instanceof ItemRainbowCoal) {
+                                    int d = itemstack.getDamageValue();
+                                    int max = itemstack.getMaxDamage();
+                                    if (d + 1 >= max) {
+                                        e.setItem(FUEL, ItemStack.EMPTY);
+                                    } else {
+                                        itemstack.setDamageValue(d + 1);
+                                    }
+                                } else {
+                                    ItemStackTemplate fuelRem = itemstack.getCraftingRemainder();
+                                    if (fuelRem != null) {
+                                        e.setItem(FUEL, fuelRem.create());
+                                    } else if (!itemstack.isEmpty()) {
+                                        itemstack.shrink(1);
+                                        if (itemstack.isEmpty()) {
+                                            ItemStackTemplate fuelRem2 = itemstack.getCraftingRemainder();
+                                            e.setItem(FUEL, fuelRem2 != null ? fuelRem2.create() : ItemStack.EMPTY);
+                                        }
                                     }
                                 }
                             }
@@ -1349,7 +1293,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                 continue;
             }
             if (furnaceSettings.get(dir.ordinal()) == 2 || furnaceSettings.get(dir.ordinal()) == 3) {
-                EnergyHandler other = level.getCapability(Capabilities.Energy.BLOCK, tile.getBlockPos(), dir.getOpposite());
+                FEnergyStorage other = ironFurnacesEnergyStorage(tile);
                 if (other == null) {
                     continue;
                 }
@@ -1358,15 +1302,12 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                 }
             }
         }
+        int n = Math.max(1, tiles.size());
         for (Map.Entry<BlockEntity, Direction> entry : tiles.entrySet()) {
-            int energy = Config.millionFurnacePowerToGenerate.get() / tiles.size();
-            EnergyHandler other = level.getCapability(Capabilities.Energy.BLOCK, entry.getKey().getBlockPos(), entry.getValue());
-            if (other != null)
-            {
-                try (Transaction tx = Transaction.openRoot()) {
-                    other.insert(energy, tx);
-                    tx.commit();
-                }
+            int energy = Config.millionFurnacePowerToGenerate.get() / n;
+            FEnergyStorage other = ironFurnacesEnergyStorage(entry.getKey());
+            if (other != null && energy > 0) {
+                other.receiveEnergy(energy, false);
             }
         }
     }
@@ -1380,28 +1321,25 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                 continue;
             }
             if (furnaceSettings.get(dir.ordinal()) == 2 || furnaceSettings.get(dir.ordinal()) == 3) {
-                EnergyHandler other = level.getCapability(Capabilities.Energy.BLOCK, tile.getBlockPos(), dir.getOpposite());
+                FEnergyStorage other = ironFurnacesEnergyStorage(tile);
                 if (other == null) {
                     continue;
                 }
-                if (energyHandlerCanAccept(other) && other.getAmountAsLong() < other.getCapacityAsLong()) {
+                if (energyHandlerCanAccept(other) && other.getEnergy() < other.getCapacityAsInt()) {
 
                     tiles.put(tile, dir.getOpposite());
                 }
             }
         }
         for (Map.Entry<BlockEntity, Direction> entry : tiles.entrySet()) {
-            EnergyHandler other = level.getCapability(Capabilities.Energy.BLOCK, entry.getKey().getBlockPos(), entry.getValue());
+            FEnergyStorage other = ironFurnacesEnergyStorage(entry.getKey());
             int energy = Math.min(energyStorage.getMaxExtract(), getEnergy());
             if (other != null && energy > 0)
             {
-                try (Transaction tx = Transaction.openRoot()) {
-                    int extracted = energyStorage.extract(energy, tx);
-                    int inserted = other.insert(extracted, tx);
-                    if (inserted < extracted) {
-                        energyStorage.insert(extracted - inserted, tx);
-                    }
-                    tx.commit();
+                int extracted = energyStorage.extractEnergy(energy, false);
+                int inserted = other.receiveEnergy(extracted, false);
+                if (inserted < extracted) {
+                    energyStorage.receiveEnergy(extracted - inserted, false);
                 }
             }
         }
@@ -1415,19 +1353,19 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
             }
             if (furnaceSettings.get(dir.ordinal()) == 1 || furnaceSettings.get(dir.ordinal()) == 2 || furnaceSettings.get(dir.ordinal()) == 3 || furnaceSettings.get(dir.ordinal()) == 4) {
                 if (tile != null) {
-                    ResourceHandler<ItemResource> other = level.getCapability(Capabilities.Item.BLOCK, tile.getBlockPos(), dir.getOpposite());
+                    SlottedStorage<ItemVariant> other = slottedItemStorage(level, tile.getBlockPos(), dir.getOpposite());
 
                     if (other == null) {
                         continue;
                     }
-                    if (other != null) {
+                    {
                         if (this.getAutoInput() != 0 || this.getAutoOutput() != 0) {
                             if (this.getAutoInput() == 1) {
                                 if (furnaceSettings.get(dir.ordinal()) == 1 || furnaceSettings.get(dir.ordinal()) == 3) {
                                     if (this.getItem(INPUT).getCount() >= this.getItem(INPUT).getMaxStackSize()) {
                                         continue;
                                     }
-                                    for (int i = 0; i < other.size(); i++) {
+                                    for (int i = 0; i < other.getSlotCount(); i++) {
                                         if (resourceStack(other, i).isEmpty()) {
                                             continue;
                                         }
@@ -1441,7 +1379,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                                     if (this.getItem(FUEL).getCount() >= this.getItem(FUEL).getMaxStackSize()) {
                                         continue;
                                     }
-                                    for (int i = 0; i < other.size(); i++) {
+                                    for (int i = 0; i < other.getSlotCount(); i++) {
                                         if (resourceStack(other, i).isEmpty()) {
                                             continue;
                                         }
@@ -1463,12 +1401,9 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                                     if (isItemFuel(this.getItem(FUEL), recipeType, level)) {
                                         continue;
                                     }
-                                    for (int i = 0; i < other.size(); i++) {
+                                    for (int i = 0; i < other.getSlotCount(); i++) {
                                         ItemStack stack = extractItemInternal(FUEL, resourceSlotSpace(other, i, this.getItem(FUEL)), true);
-                                        if (stack.isEmpty()) {
-                                            continue;
-                                        }
-                                        if (other.isValid(i, ItemResource.of(stack)) && (resourceStack(other, i).isEmpty() || (ItemStack.isSameItemSameComponents(resourceStack(other, i), stack) && resourceStack(other, i).getCount() + stack.getCount() <= resourceSlotLimit(other, i, stack)))) {
+                                        if (fabricSlotValid(other, i, stack) && (resourceStack(other, i).isEmpty() || (ItemStack.isSameItemSameComponents(resourceStack(other, i), stack) && resourceStack(other, i).getCount() + stack.getCount() <= resourceSlotLimit(other, i, stack)))) {
                                             boolean check = resourceInsert(other, i, extractItemInternal(FUEL, stack.getCount(), true), true).isEmpty();
                                             if (check) resourceInsert(other, i, extractItemInternal(FUEL, stack.getCount(), false), false);
                                         }
@@ -1479,12 +1414,9 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                                     if (this.getItem(OUTPUT).isEmpty()) {
                                         continue;
                                     }
-                                    for (int i = 0; i < other.size(); i++) {
+                                    for (int i = 0; i < other.getSlotCount(); i++) {
                                         ItemStack stack = extractItemInternal(OUTPUT, resourceSlotSpace(other, i, this.getItem(OUTPUT)), true);
-                                        if (stack.isEmpty()) {
-                                            continue;
-                                        }
-                                        if (other.isValid(i, ItemResource.of(stack)) && (resourceStack(other, i).isEmpty() || (ItemStack.isSameItemSameComponents(resourceStack(other, i), stack) && resourceStack(other, i).getCount() + stack.getCount() <= resourceSlotLimit(other, i, stack)))) {
+                                        if (fabricSlotValid(other, i, stack) && (resourceStack(other, i).isEmpty() || (ItemStack.isSameItemSameComponents(resourceStack(other, i), stack) && resourceStack(other, i).getCount() + stack.getCount() <= resourceSlotLimit(other, i, stack)))) {
                                             boolean check = resourceInsert(other, i, extractItemInternal(OUTPUT, stack.getCount(), true), true).isEmpty();
                                             if (check) resourceInsert(other, i, extractItemInternal(OUTPUT, stack.getCount(), false), false);
                                         }
@@ -1507,18 +1439,18 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
             }
             if (furnaceSettings.get(dir.ordinal()) == 4) {
                 if (tile != null) {
-                    ResourceHandler<ItemResource> other = level.getCapability(Capabilities.Item.BLOCK, tile.getBlockPos(), dir.getOpposite());
+                    SlottedStorage<ItemVariant> other = slottedItemStorage(level, tile.getBlockPos(), dir.getOpposite());
 
                     if (other == null) {
                         continue;
                     }
-                    if (other != null) {
+                    {
                         if (this.getAutoInput() != 0) {
                             if (furnaceSettings.get(dir.ordinal()) == 4) {
                                 if (this.getItem(GENERATOR_FUEL).getCount() >= this.getItem(GENERATOR_FUEL).getMaxStackSize()) {
                                     continue;
                                 }
-                                for (int i = 0; i < other.size(); i++) {
+                                for (int i = 0; i < other.getSlotCount(); i++) {
                                     if (resourceStack(other, i).isEmpty()) {
                                         continue;
                                     }
@@ -1554,12 +1486,9 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                                     continue;
                                 }
                                 if (!isItemGeneratorFuel(getItem(GENERATOR_FUEL))) {
-                                    for (int i = 0; i < other.size(); i++) {
+                                    for (int i = 0; i < other.getSlotCount(); i++) {
                                         ItemStack stack = extractItemInternal(GENERATOR_FUEL, resourceSlotSpace(other, i, this.getItem(GENERATOR_FUEL)), true);
-                                        if (stack.isEmpty()) {
-                                            continue;
-                                        }
-                                        if (other.isValid(i, ItemResource.of(stack)) && (resourceStack(other, i).isEmpty() || (ItemStack.isSameItemSameComponents(resourceStack(other, i), stack) && resourceStack(other, i).getCount() + stack.getCount() <= resourceSlotLimit(other, i, stack)))) {
+                                        if (fabricSlotValid(other, i, stack) && (resourceStack(other, i).isEmpty() || (ItemStack.isSameItemSameComponents(resourceStack(other, i), stack) && resourceStack(other, i).getCount() + stack.getCount() <= resourceSlotLimit(other, i, stack)))) {
                                             boolean check = resourceInsert(other, i, extractItemInternal(GENERATOR_FUEL, stack.getCount(), true), true).isEmpty();
                                             if (check) resourceInsert(other, i, extractItemInternal(GENERATOR_FUEL, stack.getCount(), false), false);
                                         }
@@ -1581,12 +1510,12 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
             }
             if (furnaceSettings.get(dir.ordinal()) == 1 || furnaceSettings.get(dir.ordinal()) == 2 || furnaceSettings.get(dir.ordinal()) == 3) {
                 if (tile != null) {
-                    ResourceHandler<ItemResource> other = level.getCapability(Capabilities.Item.BLOCK, tile.getBlockPos(), dir.getOpposite());
+                    SlottedStorage<ItemVariant> other = slottedItemStorage(level, tile.getBlockPos(), dir.getOpposite());
 
                     if (other == null) {
                         continue;
                     }
-                    if (other != null) {
+                    {
                         if (this.getAutoInput() != 0 || this.getAutoOutput() != 0) {
                             if (this.getAutoInput() == 1) {
                                 if (furnaceSettings.get(dir.ordinal()) == 1 || furnaceSettings.get(dir.ordinal()) == 3) {
@@ -1597,7 +1526,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                                         if (this.getItem(FACTORY_INPUT[j]).getCount() >= this.getItem(FACTORY_INPUT[j]).getMaxStackSize()) {
                                             continue;
                                         }
-                                        for (int i = 0; i < other.size(); i++) {
+                                        for (int i = 0; i < other.getSlotCount(); i++) {
                                             if (resourceStack(other, i).isEmpty()) {
                                                 continue;
                                             }
@@ -1620,12 +1549,9 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                                             continue;
                                         }
 
-                                        for (int i = 0; i < other.size(); i++) {
+                                        for (int i = 0; i < other.getSlotCount(); i++) {
                                             ItemStack stack = extractItemInternal(FACTORY_INPUT[j] + 6, resourceSlotSpace(other, i, this.getItem(FACTORY_INPUT[j] + 6)), true);
-                                            if (stack.isEmpty()) {
-                                                continue;
-                                            }
-                                            if (other.isValid(i, ItemResource.of(stack)) && (resourceStack(other, i).isEmpty() || (ItemStack.isSameItemSameComponents(resourceStack(other, i), stack) && resourceStack(other, i).getCount() + stack.getCount() <= resourceSlotLimit(other, i, stack)))) {
+                                            if (fabricSlotValid(other, i, stack) && (resourceStack(other, i).isEmpty() || (ItemStack.isSameItemSameComponents(resourceStack(other, i), stack) && resourceStack(other, i).getCount() + stack.getCount() <= resourceSlotLimit(other, i, stack)))) {
                                                 boolean check = resourceInsert(other, i, extractItemInternal(FACTORY_INPUT[j] + 6, stack.getCount(), true), true).isEmpty();
                                                 if (check) resourceInsert(other, i, extractItemInternal(FACTORY_INPUT[j] + 6, stack.getCount(), false), false);
                                             }
@@ -1642,8 +1568,8 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
         }
     }
 
-    @Nonnull
-    public ItemStack insertItemInternal(int slot, @Nonnull ItemStack stack, boolean simulate) {
+    @NotNull
+    public ItemStack insertItemInternal(int slot, @NotNull ItemStack stack, boolean simulate) {
         if (stack.isEmpty())
             return ItemStack.EMPTY;
         if (!canPlaceItemThroughFace(slot, stack, null))
@@ -1678,9 +1604,9 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
     }
 
 
-    @Nonnull
+    @NotNull
     private ItemStack extractItemInternal(int slot, int amount, boolean simulate) {
-        if (amount <= 0)
+        if (amount == 0)
             return ItemStack.EMPTY;
 
         ItemStack existing = this.getItem(slot);
@@ -1816,9 +1742,9 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
 
 
     protected int getStateType() {
-        if (this.getItem(3).getItem() == ironfurnaces.init.Registration.SMOKING_AUGMENT.get()) {
+        if (this.getItem(3).getItem() == ironfurnaces.init.Registration.SMOKING_AUGMENT) {
             return 1;
-        } else if (this.getItem(3).getItem() == ironfurnaces.init.Registration.BLASTING_AUGMENT.get()) {
+        } else if (this.getItem(3).getItem() == ironfurnaces.init.Registration.BLASTING_AUGMENT) {
             return 2;
         } else {
             return 0;
@@ -1982,6 +1908,21 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
         //FurnaceHandler.handle(new FurnaceBurnEvent(stack, level, pos));
     }
 
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        if (this.level instanceof ServerLevel world) {
+            if (owner != null) {
+                var p = world.getPlayerByUUID(owner);
+                if (p != null) {
+                    p.getAttachedOrCreate(ironfurnaces.init.Registration.PLAYER_FURNACES_LIST, PlayerFurnacesListProvider::new).furnacesList.remove(pos);
+                }
+            }
+            Containers.dropContents(world, pos, this);
+            grantStoredRecipeExperience(world, new Vec3(pos.getX(), pos.getY(), pos.getZ()));
+            world.updateNeighbourForOutputSignal(pos, state.getBlock());
+        }
+        super.preRemoveSideEffects(pos, state);
+    }
 
     @Override
     public void loadAdditional(ValueInput input) {
@@ -2007,7 +1948,6 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
         generatorBurn = input.getDoubleOr("GeneratorBurn", generatorBurn);
         generatorRecentRecipeRF = input.getIntOr("GeneratorRecent", generatorRecentRecipeRF);
         gottenRF = input.getDoubleOr("GottenRF", gottenRF);
-        fluidStorage.deserialize(input.childOrEmpty("LiquidFuelTank"));
 
         furnaceBurnTime = input.getIntOr("BurnTime", furnaceBurnTime);
         cookTime = input.getIntOr("CookTime", cookTime);
@@ -2042,7 +1982,6 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
         output.putDouble("GeneratorBurn", generatorBurn);
         output.putInt("GeneratorRecent", generatorRecentRecipeRF);
         output.putDouble("GottenRF", gottenRF);
-        fluidStorage.serialize(output.child("LiquidFuelTank"));
 
         output.putInt("BurnTime", furnaceBurnTime);
         output.putInt("CookTime", cookTime);
@@ -2066,8 +2005,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
             return 0;
         }
         var fuelValues = level.fuelValues();
-        int vanilla = stack.getBurnTime(recipeType, fuelValues);
-        return EventHooks.getItemBurnTime(stack, vanilla, recipeType, fuelValues);
+        return fuelValues.burnDuration(stack);
     }
 
     public int getBurnTime(ItemStack stack, RecipeType<?> recipeType) {
@@ -2326,7 +2264,8 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                     furnaceSettings.set(dir.ordinal(), 4);
                 }
             }
-            level.markAndNotifyBlock(worldPosition, level.getChunkAt(worldPosition), level.getBlockState(worldPosition).getBlock().defaultBlockState(), level.getBlockState(worldPosition), 3, 3);
+            BlockState st = level.getBlockState(worldPosition);
+            level.sendBlockUpdated(worldPosition, st, st, Block.UPDATE_CLIENTS);
         }
 
     }
@@ -2343,42 +2282,79 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
         return currentAugment[2] == 0;
     }
 
-    private static boolean energyHandlerCanAccept(EnergyHandler handler) {
-        try (Transaction tx = Transaction.openRoot()) {
-            return handler.insert(1, tx) > 0;
+    @Nullable
+    private static SlottedStorage<ItemVariant> slottedItemStorage(Level level, BlockPos pos, Direction fromFace) {
+        var st = ItemStorage.SIDED.find(level, pos, fromFace);
+        if (st instanceof SlottedStorage<ItemVariant> s) {
+            return s;
+        }
+        return null;
+    }
+
+    private static boolean fabricItemCanInsert(SingleSlotStorage<ItemVariant> slot, ItemStack stack) {
+        if (stack.isEmpty()) {
+            return true;
+        }
+        ItemVariant v = ItemVariant.of(stack);
+        try (Transaction tx = Transaction.openOuter()) {
+            long inserted = slot.insert(v, stack.getCount(), tx);
+            tx.abort();
+            return inserted > 0;
         }
     }
 
-    private static ItemStack resourceStack(ResourceHandler<ItemResource> handler, int slot) {
-        ItemResource resource = handler.getResource(slot);
-        if (resource.isEmpty()) {
+    private static boolean fabricSlotValid(SlottedStorage<ItemVariant> storage, int slot, ItemStack stack) {
+        return fabricItemCanInsert(storage.getSlot(slot), stack);
+    }
+
+    private static boolean energyHandlerCanAccept(FEnergyStorage handler) {
+        return handler.receiveEnergy(1, true) > 0;
+    }
+
+    @Nullable
+    private static FEnergyStorage ironFurnacesEnergyStorage(BlockEntity be) {
+        if (be instanceof BlockIronFurnaceTileBase f) {
+            return f.energyStorage;
+        }
+        if (be instanceof BlockWirelessEnergyHeaterTile h) {
+            return h.energyStorage;
+        }
+        return null;
+    }
+
+    private static ItemStack resourceStack(SlottedStorage<ItemVariant> storage, int slot) {
+        SingleSlotStorage<ItemVariant> slotSt = storage.getSlot(slot);
+        ItemVariant resource = slotSt.getResource();
+        if (resource.isBlank()) {
             return ItemStack.EMPTY;
         }
-        return resource.toStack((int) Math.min(Integer.MAX_VALUE, handler.getAmountAsLong(slot)));
+        return resource.toStack((int) Math.min(Integer.MAX_VALUE, slotSt.getAmount()));
     }
 
-    private static int resourceSlotLimit(ResourceHandler<ItemResource> handler, int slot, ItemStack aboutToInsert) {
-        ItemResource cur = handler.getResource(slot);
-        ItemResource ref = cur.isEmpty() ? ItemResource.of(aboutToInsert) : cur;
-        if (ref.isEmpty()) {
+    private static int resourceSlotLimit(SlottedStorage<ItemVariant> storage, int slot, ItemStack aboutToInsert) {
+        SingleSlotStorage<ItemVariant> slotSt = storage.getSlot(slot);
+        ItemVariant cur = slotSt.getResource();
+        ItemVariant ref = cur.isBlank() ? ItemVariant.of(aboutToInsert) : cur;
+        if (ref.isBlank()) {
             return 0;
         }
-        return (int) Math.min(Integer.MAX_VALUE, handler.getCapacityAsLong(slot, ref));
+        return (int) Math.min(Integer.MAX_VALUE, slotSt.getCapacity());
     }
 
-    private static int resourceSlotSpace(ResourceHandler<ItemResource> handler, int slot, ItemStack aboutToInsert) {
-        ItemStack cur = resourceStack(handler, slot);
-        return Math.max(0, resourceSlotLimit(handler, slot, aboutToInsert) - cur.getCount());
+    private static int resourceSlotSpace(SlottedStorage<ItemVariant> storage, int slot, ItemStack aboutToInsert) {
+        ItemStack cur = resourceStack(storage, slot);
+        return Math.max(0, resourceSlotLimit(storage, slot, aboutToInsert) - cur.getCount());
     }
 
-    private static ItemStack resourceExtract(ResourceHandler<ItemResource> handler, int slot, int max, boolean simulate) {
-        ItemResource res = handler.getResource(slot);
-        if (res.isEmpty()) {
+    private static ItemStack resourceExtract(SlottedStorage<ItemVariant> storage, int slot, int max, boolean simulate) {
+        SingleSlotStorage<ItemVariant> slotSt = storage.getSlot(slot);
+        ItemVariant res = slotSt.getResource();
+        if (res.isBlank()) {
             return ItemStack.EMPTY;
         }
-        try (Transaction tx = Transaction.openRoot()) {
-            int ext = handler.extract(slot, res, max, tx);
-            ItemStack result = res.toStack(ext);
+        try (Transaction tx = Transaction.openOuter()) {
+            long ext = slotSt.extract(res, max, tx);
+            ItemStack result = res.toStack((int) ext);
             if (!simulate) {
                 tx.commit();
             }
@@ -2386,17 +2362,18 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
         }
     }
 
-    private static ItemStack resourceInsert(ResourceHandler<ItemResource> handler, int slot, ItemStack stack, boolean simulate) {
+    private static ItemStack resourceInsert(SlottedStorage<ItemVariant> storage, int slot, ItemStack stack, boolean simulate) {
         if (stack.isEmpty()) {
             return ItemStack.EMPTY;
         }
-        ItemResource res = ItemResource.of(stack);
-        try (Transaction tx = Transaction.openRoot()) {
-            int ins = handler.insert(slot, res, stack.getCount(), tx);
+        ItemVariant res = ItemVariant.of(stack);
+        SingleSlotStorage<ItemVariant> slotSt = storage.getSlot(slot);
+        try (Transaction tx = Transaction.openOuter()) {
+            long ins = slotSt.insert(res, stack.getCount(), tx);
             if (!simulate) {
                 tx.commit();
             }
-            int left = stack.getCount() - ins;
+            int left = stack.getCount() - (int) ins;
             return left > 0 ? stack.copyWithCount(left) : ItemStack.EMPTY;
         }
     }

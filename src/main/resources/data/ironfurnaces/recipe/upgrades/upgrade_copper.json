@@ -1,1 +1,23 @@
-{"type":"minecraft:crafting_shaped","pattern":["###","#X#","###"],"key":{"#":"#c:ingots/copper","X":"#minecraft:stone_tool_materials"},"result":{"id":"ironfurnaces:upgrade_copper"},"neoforge:conditions":[{"value":{"type":"neoforge:tag_empty","tag":"c:ingots/copper"},"type":"neoforge:not"}]}
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#X#",
+    "###"
+  ],
+  "key": {
+    "#": "#c:ingots/copper",
+    "X": "#minecraft:stone_tool_materials"
+  },
+  "result": {
+    "id": "ironfurnaces:upgrade_copper"
+  },
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:tags_populated",
+      "values": [
+        "c:ingots/copper"
+      ]
+    }
+  ]
+}

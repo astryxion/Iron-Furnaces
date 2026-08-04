@@ -19,7 +19,6 @@ package ironfurnaces.util;
 import ironfurnaces.Config;
 import ironfurnaces.IronFurnaces;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
@@ -164,9 +163,11 @@ public class FurnaceSettings {
     }
 
     public void write(ValueOutput output) {
-        CompoundTag tag = new CompoundTag();
-        write(tag);
-        ((TagValueOutput) output).store(tag);
+        output.putIntArray("Settings", settings);
+        output.putIntArray("AutoIO", autoIO);
+        output.putIntArray("Redstone", redstoneSettings);
+        output.putInt("AugmentGUI", augmentGUI);
+        output.putInt("AutoSplit", autoSplit);
     }
 
     public void onChanged() {

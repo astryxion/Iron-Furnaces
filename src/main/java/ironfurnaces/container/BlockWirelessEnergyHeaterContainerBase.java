@@ -28,9 +28,6 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.SlotItemHandler;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
 
 
 public class BlockWirelessEnergyHeaterContainerBase extends AbstractContainerMenu {
@@ -38,7 +35,7 @@ public class BlockWirelessEnergyHeaterContainerBase extends AbstractContainerMen
 
     protected BlockWirelessEnergyHeaterTile te;
     protected Player playerEntity;
-    protected IItemHandler playerInventory;
+    protected Inventory playerInventory;
     protected final Level world;
 
 
@@ -46,7 +43,7 @@ public class BlockWirelessEnergyHeaterContainerBase extends AbstractContainerMen
         super(menuType, windowId);
         this.te = (BlockWirelessEnergyHeaterTile) world.getBlockEntity(pos);
         this.playerEntity = player;
-        this.playerInventory = new InvWrapper(playerInventory);
+        this.playerInventory = playerInventory;
         this.world = playerInventory.player.level();
         trackPower();
         this.addSlot(new SlotHeater(te, 0, 80, 37));
@@ -96,16 +93,16 @@ public class BlockWirelessEnergyHeaterContainerBase extends AbstractContainerMen
         return j != 0 && i != 0 ? i * pixels / j : 0;
     }
 
-    private int addSlotRange(IItemHandler handler, int index, int x, int y, int amount, int dx) {
+    private int addSlotRange(Inventory handler, int index, int x, int y, int amount, int dx) {
         for (int i = 0 ; i < amount ; i++) {
-            addSlot(new SlotItemHandler(handler, index, x, y));
+            addSlot(new Slot(handler, index, x, y));
             x += dx;
             index++;
         }
         return index;
     }
 
-    private int addSlotBox(IItemHandler handler, int index, int x, int y, int horAmount, int dx, int verAmount, int dy) {
+    private int addSlotBox(Inventory handler, int index, int x, int y, int horAmount, int dx, int verAmount, int dy) {
         for (int j = 0 ; j < verAmount ; j++) {
             index = addSlotRange(handler, index, x, y, horAmount, dx);
             y += dy;

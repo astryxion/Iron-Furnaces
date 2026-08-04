@@ -1,13 +1,4 @@
 {
-  "neoforge:conditions": [
-    {
-      "type": "neoforge:not",
-      "value": {
-        "type": "neoforge:tag_empty",
-        "tag": "c:ingots/vibranium"
-      }
-    }
-  ],
   "type": "minecraft:crafting_shaped",
   "pattern": [
     "B#B",
@@ -16,10 +7,18 @@
   ],
   "key": {
     "#": "#c:ingots/vibranium",
-    "B": "#ironfurnaces:vibranium_corners",
+    "B": "#c:storage_blocks/vibranium",
     "X": "#c:ingots/allthemodium"
   },
   "result": {
     "id": "ironfurnaces:upgrade_vibranium"
-  }
+  },
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "allthemodium"
+      ]
+    }
+  ]
 }

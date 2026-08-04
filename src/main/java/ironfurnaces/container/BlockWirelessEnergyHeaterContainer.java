@@ -26,10 +26,12 @@ import net.minecraft.world.level.Level;
 
 public class BlockWirelessEnergyHeaterContainer extends BlockWirelessEnergyHeaterContainerBase {
 
-
+    public BlockWirelessEnergyHeaterContainer(int syncId, Inventory inv) {
+        this(syncId, inv.player.level(), ClientMenuOpenPos.forInventory(inv), inv, inv.player);
+    }
 
     public BlockWirelessEnergyHeaterContainer(int windowId, Level world, BlockPos pos, Inventory playerInventory, Player player) {
-        super(ironfurnaces.init.Registration.HEATER_CONTAINER.get(), windowId, world, pos, playerInventory, player);
+        super(ironfurnaces.init.Registration.HEATER_CONTAINER, windowId, world, pos, playerInventory, player);
         this.te = (BlockWirelessEnergyHeaterTile) world.getBlockEntity(pos);
     }
 

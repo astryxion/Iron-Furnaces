@@ -1,0 +1,32 @@
+{
+	"schemaVersion": 1,
+	"id": "ironfurnaces",
+	"version": "${version}",
+	"name": "${mod_name}",
+	"description": "${mod_description}",
+	"authors": ["${mod_authors}"],
+	"contributors": ["pizzatime", "XenoMustache"],
+	"contact": {
+		"homepage": "https://github.com/astryxion/Iron-Furnaces",
+		"sources": "https://github.com/astryxion/Iron-Furnaces",
+		"issues": "https://github.com/astryxion/Iron-Furnaces/issues"
+	},
+	"license": "${mod_license}",
+	"icon": "assets/ironfurnaces/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": ["ironfurnaces.IronFurnaces"],
+		"client": ["ironfurnaces.IronFurnacesClient"],
+		"jei_mod_plugin": ["ironfurnaces.jei.IronFurnacesJEIPlugin"]
+	},
+	"mixins": ["ironfurnaces.mixins.json"],
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": ">=26.2",
+		"java": ">=25",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"jei": "*"
+	}
+}

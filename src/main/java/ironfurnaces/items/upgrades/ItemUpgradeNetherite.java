@@ -22,6 +22,6 @@ public class ItemUpgradeNetherite extends ItemUpgrade {
 
 
     public ItemUpgradeNetherite(Properties properties) {
-        super(properties, ironfurnaces.init.Registration.OBSIDIAN_FURNACE.get(), ironfurnaces.init.Registration.NETHERITE_FURNACE.get());
+        super(properties, ironfurnaces.init.Registration.OBSIDIAN_FURNACE, ironfurnaces.init.Registration.NETHERITE_FURNACE);
     }
 }

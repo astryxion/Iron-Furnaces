@@ -16,23 +16,14 @@
 
 package ironfurnaces.items;
 
-import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.Mth;
-import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.block.entity.FuelValues;
-import org.jspecify.annotations.Nullable;
 
 public class ItemRainbowCoal extends Item {
 
     public ItemRainbowCoal(Properties properties) {
-        super(properties.durability(5120));
+        super(properties);
     }
 
     @Override
@@ -49,26 +40,5 @@ public class ItemRainbowCoal extends Item {
     public int getBarColor(ItemStack p_150901_) {
         float f = Math.max(0.0F, ((float) 5120 - (float) p_150901_.getDamageValue()) / (float) 5120);
         return Mth.hsvToRgb(f / 3.0F, 1.0F, 1.0F);
-    }
-
-    @Override
-    public int getBurnTime(ItemStack itemStack, @Nullable RecipeType<?> recipeType, FuelValues fuelValues) {
-        return 200;
-    }
-
-    @Override
-    public @Nullable ItemStackTemplate getCraftingRemainder(ItemInstance instance) {
-        ItemStack stack = (ItemStack) instance;
-        int damage = stack.getDamageValue();
-        if (damage + 1 >= 5120) {
-            return null;
-        }
-        DataComponentPatch patch = DataComponentPatch.builder().set(DataComponents.DAMAGE, damage + 1).build();
-        return new ItemStackTemplate(this, 1, patch);
-    }
-
-    @Override
-    public boolean supportsEnchantment(ItemStack stack, Holder<Enchantment> enchantment) {
-        return false;
     }
 }

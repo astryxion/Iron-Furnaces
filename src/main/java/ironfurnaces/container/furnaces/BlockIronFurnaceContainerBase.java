@@ -34,23 +34,14 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.fluids.FluidType;
-import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.SlotItemHandler;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
 
 
 public abstract class BlockIronFurnaceContainerBase extends AbstractContainerMenu {
 
     protected BlockIronFurnaceTileBase te;
     protected Player playerEntity;
-    protected IItemHandler playerInventory;
+    protected Inventory playerInventory;
     protected final Level world;
-    protected int fluidAmountMb;
-    protected int fluidCapacityMb = 5000;
-    protected int fluidType;
 
 
 
@@ -59,7 +50,7 @@ public abstract class BlockIronFurnaceContainerBase extends AbstractContainerMen
         super(containerType, windowId);
         this.te = (BlockIronFurnaceTileBase) world.getBlockEntity(pos);
         this.playerEntity = player;
-        this.playerInventory = new InvWrapper(playerInventory);
+        this.playerInventory = playerInventory;
         this.world = playerInventory.player.level();
 
         //FURNACE
@@ -236,46 +227,6 @@ public abstract class BlockIronFurnaceContainerBase extends AbstractContainerMen
                 te.generatorRecentRecipeRF = value;
             }
         });
-        addDataSlot(new DataSlot() {
-            @Override
-            public int get() {
-                long raw = te.getFluidStorage().getAmountAsLong(0);
-                return (int) ((raw * 1000L) / FluidType.BUCKET_VOLUME);
-            }
-
-            @Override
-            public void set(int value) {
-                fluidAmountMb = Math.max(0, value);
-            }
-        });
-        addDataSlot(new DataSlot() {
-            @Override
-            public int get() {
-                var resource = te.getFluidStorage().getResource(0);
-                long raw = te.getFluidStorage().getCapacityAsLong(0, resource.isEmpty() ? FluidResource.of(Fluids.LAVA) : resource);
-                return (int) ((raw * 1000L) / FluidType.BUCKET_VOLUME);
-            }
-
-            @Override
-            public void set(int value) {
-                fluidCapacityMb = Math.max(1, value);
-            }
-        });
-        addDataSlot(new DataSlot() {
-            @Override
-            public int get() {
-                var fluid = te.getFluidStorage().getResource(0);
-                if (fluid.equals(FluidResource.of(Fluids.LAVA))) {
-                    return 1;
-                }
-                return fluid.isEmpty() ? 0 : 2;
-            }
-
-            @Override
-            public void set(int value) {
-                fluidType = value;
-            }
-        });
     }
 
     public void addFactoryData()
@@ -316,7 +267,7 @@ public abstract class BlockIronFurnaceContainerBase extends AbstractContainerMen
     }
 
     public int getMaxEnergy() {
-        return te.energyStorage.getCapacity();
+        return te.energyStorage.getCapacityAsInt();
     }
 
 
@@ -534,18 +485,6 @@ public abstract class BlockIronFurnaceContainerBase extends AbstractContainerMen
     public boolean isGeneratorBurning()
     {
         return te.generatorBurn > 0;
-    }
-
-    public int getFluidAmountMb() {
-        return fluidAmountMb;
-    }
-
-    public int getFluidCapacityMb() {
-        return fluidCapacityMb;
-    }
-
-    public int getFluidType() {
-        return fluidType;
     }
 
 
@@ -828,16 +767,16 @@ public abstract class BlockIronFurnaceContainerBase extends AbstractContainerMen
     }
 
 
-    private int addSlotRange(IItemHandler handler, int index, int x, int y, int amount, int dx) {
+    private int addSlotRange(Inventory handler, int index, int x, int y, int amount, int dx) {
         for (int i = 0 ; i < amount ; i++) {
-            addSlot(new SlotItemHandler(handler, index, x, y));
+            addSlot(new Slot(handler, index, x, y));
             x += dx;
             index++;
         }
         return index;
     }
 
-    private int addSlotBox(IItemHandler handler, int index, int x, int y, int horAmount, int dx, int verAmount, int dy) {
+    private int addSlotBox(Inventory handler, int index, int x, int y, int horAmount, int dx, int verAmount, int dy) {
         for (int j = 0 ; j < verAmount ; j++) {
             index = addSlotRange(handler, index, x, y, horAmount, dx);
             y += dy;

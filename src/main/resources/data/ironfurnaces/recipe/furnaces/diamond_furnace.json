@@ -1,1 +1,16 @@
-{"type":"minecraft:crafting_shaped","pattern":["###","GXG","###"],"key":{"#":"#c:gems/diamond","X":"#c:furnaces/gold","G":"#c:glass_blocks/colorless"},"result":{"id":"ironfurnaces:diamond_furnace"}}
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "GXG",
+    "###"
+  ],
+  "key": {
+    "#": "#c:gems/diamond",
+    "X": "#c:furnaces/gold",
+    "G": "#c:glass_blocks/colorless"
+  },
+  "result": {
+    "id": "ironfurnaces:diamond_furnace"
+  }
+}

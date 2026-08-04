@@ -22,6 +22,6 @@ public class ItemUpgradeDiamond extends ItemUpgrade {
 
 
     public ItemUpgradeDiamond(Properties properties) {
-        super(properties, ironfurnaces.init.Registration.GOLD_FURNACE.get(), ironfurnaces.init.Registration.DIAMOND_FURNACE.get());
+        super(properties, ironfurnaces.init.Registration.GOLD_FURNACE, ironfurnaces.init.Registration.DIAMOND_FURNACE);
     }
 }

@@ -82,7 +82,8 @@ public class ItemUpgrade extends Item {
                 world.removeBlockEntity(te.getBlockPos());
                 world.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
                 world.setBlock(pos, next, 3);
-                world.markAndNotifyBlock(pos, world.getChunkAt(pos), world.getBlockState(pos).getBlock().defaultBlockState(), world.getBlockState(pos),3,  3);
+                var st = world.getBlockState(pos);
+                world.sendBlockUpdated(pos, st, st, net.minecraft.world.level.block.Block.UPDATE_CLIENTS);
                 BlockEntity te2 = world.getBlockEntity(pos);
                 if (te2 instanceof BlockIronFurnaceTileBase) {
                     ((BlockIronFurnaceTileBase) te2).placeConfig();
@@ -122,7 +123,8 @@ public class ItemUpgrade extends Item {
                     ((BlockIronFurnaceTileBase) newTe).furnaceSettings = settings;
                     ((BlockIronFurnaceTileBase) newTe).inventory = inventory;
                 }
-                world.markAndNotifyBlock(pos, world.getChunkAt(pos), world.getBlockState(pos).getBlock().defaultBlockState(), world.getBlockState(pos),3,  3);
+                var st = world.getBlockState(pos);
+                world.sendBlockUpdated(pos, st, st, net.minecraft.world.level.block.Block.UPDATE_CLIENTS);
             }
             if (!ctx.getPlayer().isCreative()) {
                 ctx.getItemInHand().shrink(1);

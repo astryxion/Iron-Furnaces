@@ -87,12 +87,12 @@ public class GeneratorRecipe implements Recipe<SingleRecipeInput> {
 
     @Override
     public RecipeSerializer<GeneratorRecipe> getSerializer() {
-        return ironfurnaces.init.Registration.GENERATOR_RECIPE_SERIALIZER.get();
+        return ironfurnaces.init.Registration.GENERATOR_RECIPE_SERIALIZER;
     }
 
     @Override
     public RecipeType<GeneratorRecipe> getType() {
-        return ironfurnaces.init.Registration.GENERATOR_RECIPE_TYPE.get();
+        return ironfurnaces.init.Registration.GENERATOR_RECIPE_TYPE;
     }
 
     @Override

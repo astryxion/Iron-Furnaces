@@ -29,17 +29,15 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class BlockWirelessEnergyHeater extends Block implements EntityBlock {
 
@@ -59,7 +57,7 @@ public class BlockWirelessEnergyHeater extends Block implements EntityBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return createTicker(level, type, ironfurnaces.init.Registration.HEATER_TILE.get());
+        return createTicker(level, type, ironfurnaces.init.Registration.HEATER_TILE);
     }
 
     @Nullable
@@ -73,19 +71,20 @@ public class BlockWirelessEnergyHeater extends Block implements EntityBlock {
     }
 
     @Override
-    public boolean onDestroyedByPlayer(BlockState state, Level world, BlockPos pos, Player player, ItemStack toolStack, boolean willHarvest, FluidState fluid) {
-        if (!world.isClientSide()) {
-            BlockWirelessEnergyHeaterTile te = (BlockWirelessEnergyHeaterTile) world.getBlockEntity(pos);
-            ItemStack stack = new ItemStack(ironfurnaces.init.Registration.HEATER.get());
+    public void playerDestroy(Level world, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ItemStack tool) {
+        if (!world.isClientSide() && blockEntity instanceof BlockWirelessEnergyHeaterTile te) {
+            ItemStack stack = new ItemStack(ironfurnaces.init.Registration.HEATER);
             if (te.hasCustomName()) {
                 stack.set(DataComponents.CUSTOM_NAME, te.getDisplayName());
             }
             if (te.getEnergy() > 0) {
-                stack.set(ironfurnaces.init.Registration.ENERGY.get(), te.getEnergy());
+                stack.set(ironfurnaces.init.Registration.ENERGY, te.getEnergy());
             }
-            if (!player.isCreative()) Containers.dropItemStack(world, te.getBlockPos().getX(), te.getBlockPos().getY(), te.getBlockPos().getZ(), stack);
+            if (!player.hasInfiniteMaterials()) {
+                Containers.dropItemStack(world, te.getBlockPos().getX(), te.getBlockPos().getY(), te.getBlockPos().getZ(), stack);
+            }
         }
-        return super.onDestroyedByPlayer(state, world, pos, player, toolStack, willHarvest, fluid);
+        super.playerDestroy(world, player, pos, state, blockEntity, tool);
     }
 
     @Override
@@ -96,7 +95,7 @@ public class BlockWirelessEnergyHeater extends Block implements EntityBlock {
                 if (stack.get(DataComponents.CUSTOM_NAME) != null) {
                     te.setCustomName(stack.get(DataComponents.CUSTOM_NAME));
                 }
-                int energy = stack.getOrDefault(ironfurnaces.init.Registration.ENERGY.get(), 0);
+                int energy = stack.getOrDefault(ironfurnaces.init.Registration.ENERGY, 0);
                 te.setEnergy(energy);
             }
 
@@ -113,21 +112,9 @@ public class BlockWirelessEnergyHeater extends Block implements EntityBlock {
 
         if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
             BlockEntity be = level.getBlockEntity(pos);
-            serverPlayer.openMenu((MenuProvider) be, buf -> buf.writeBlockPos(pos));
+            serverPlayer.openMenu((MenuProvider) be);
         }
         return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
-    }
-
-    @Override
-    public void onBlockStateChange(LevelReader levelReader, BlockPos pos, BlockState oldState, BlockState newState) {
-        if (oldState.getBlock() != newState.getBlock() && levelReader instanceof ServerLevel world) {
-            BlockEntity te = world.getBlockEntity(pos);
-            if (te instanceof BlockWirelessEnergyHeaterTile heaterTile) {
-                Containers.dropContents(world, pos, heaterTile);
-                world.updateNeighbourForOutputSignal(pos, this);
-            }
-        }
-        super.onBlockStateChange(levelReader, pos, oldState, newState);
     }
 
 }

@@ -31,7 +31,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class BlockNetheriteFurnace extends BlockIronFurnaceBase {
 
@@ -44,7 +44,7 @@ public class BlockNetheriteFurnace extends BlockIronFurnaceBase {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return createFurnaceTicker(level, type, ironfurnaces.init.Registration.NETHERITE_FURNACE_TILE.get());
+        return createFurnaceTicker(level, type, ironfurnaces.init.Registration.NETHERITE_FURNACE_TILE);
     }
 
     @Override
@@ -59,9 +59,9 @@ public class BlockNetheriteFurnace extends BlockIronFurnaceBase {
                 return;
             }
             BlockIronFurnaceTileBase tile = ((BlockIronFurnaceTileBase) world.getBlockEntity(pos));
-            if (tile.getItem(3).getItem() == ironfurnaces.init.Registration.SMOKING_AUGMENT.get()) {
+            if (tile.getItem(3).getItem() == ironfurnaces.init.Registration.SMOKING_AUGMENT) {
                 super.animateTick(state, world, pos, rand);
-            } else if (tile.getItem(3).getItem() == ironfurnaces.init.Registration.BLASTING_AUGMENT.get()) {
+            } else if (tile.getItem(3).getItem() == ironfurnaces.init.Registration.BLASTING_AUGMENT) {
                 super.animateTick(state, world, pos, rand);
             }
             else

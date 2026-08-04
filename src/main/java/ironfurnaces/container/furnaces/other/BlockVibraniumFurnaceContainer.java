@@ -16,6 +16,7 @@
 
 package ironfurnaces.container.furnaces.other;
 
+import ironfurnaces.container.ClientMenuOpenPos;
 import ironfurnaces.container.furnaces.BlockIronFurnaceContainerBase;
 import ironfurnaces.init.Registration;
 import ironfurnaces.tileentity.furnaces.other.BlockVibraniumFurnaceTile;
@@ -26,8 +27,12 @@ import net.minecraft.world.level.Level;
 
 public class BlockVibraniumFurnaceContainer extends BlockIronFurnaceContainerBase {
 
+    public BlockVibraniumFurnaceContainer(int syncId, Inventory inv) {
+        this(syncId, inv.player.level(), ClientMenuOpenPos.forInventory(inv), inv, inv.player);
+    }
+
     public BlockVibraniumFurnaceContainer(int windowId, Level world, BlockPos pos, Inventory playerInventory, Player player) {
-        super(ironfurnaces.init.Registration.VIBRANIUM_FURNACE_CONTAINER.get(), windowId, world, pos, playerInventory, player);
+        super(ironfurnaces.init.Registration.VIBRANIUM_FURNACE_CONTAINER, windowId, world, pos, playerInventory, player);
         this.te = (BlockVibraniumFurnaceTile) world.getBlockEntity(pos);
     }
 

@@ -25,8 +25,6 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 
 public abstract class BlockWirelessEnergyHeaterScreenBase<T extends BlockWirelessEnergyHeaterContainer> extends AbstractContainerScreen<T> {
@@ -48,11 +46,11 @@ public abstract class BlockWirelessEnergyHeaterScreenBase<T extends BlockWireles
 
     @Override
     public void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        graphics.text(font, this.playerInv.getDisplayName(), 7, this.getYSize() - 93, 4210752, false);
-        graphics.text(font, name, this.getXSize() / 2 - this.minecraft.font.width(name.getString()) / 2, 6, 4210752, false);
+        graphics.text(font, this.playerInv.getName(), 7, this.imageHeight - 93, 4210752, false);
+        graphics.text(font, name, this.imageWidth / 2 - this.minecraft.font.width(name.getString()) / 2, 6, 4210752, false);
 
-        int actualMouseX = mouseX - ((this.width - this.getXSize()) / 2);
-        int actualMouseY = mouseY - ((this.height - this.getYSize()) / 2);
+        int actualMouseX = mouseX - ((this.width - this.imageWidth) / 2);
+        int actualMouseY = mouseY - ((this.height - this.imageHeight) / 2);
         if (actualMouseX >= 68 && actualMouseX <= 108 && actualMouseY >= 64 && actualMouseY <= 76) {
             int energy = ((BlockWirelessEnergyHeaterContainer) this.getMenu()).getEnergy();
             int capacity = ((BlockWirelessEnergyHeaterContainer) this.getMenu()).getMaxEnergy();
@@ -63,13 +61,13 @@ public abstract class BlockWirelessEnergyHeaterScreenBase<T extends BlockWireles
 
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
-        int relX = (this.width - this.getXSize()) / 2;
-        int relY = (this.height - this.getYSize()) / 2;
-        graphics.blit(RenderPipelines.GUI_TEXTURED, GUI, relX, relY, 0, 0, this.getXSize(), this.getYSize(), 256, 256);
+        int relX = (this.width - this.imageWidth) / 2;
+        int relY = (this.height - this.imageHeight) / 2;
+        graphics.blit(RenderPipelines.GUI_TEXTURED, GUI, relX, relY, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
 
         int i;
         i = ((BlockWirelessEnergyHeaterContainer) this.getMenu()).getEnergyScaled(42);
-        graphics.blit(RenderPipelines.GUI_TEXTURED, GUI, getGuiLeft() + 67, getGuiTop() + 63, 176, 0, i + 1, 14, 256, 256);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, GUI, leftPos + 67, topPos + 63, 176, 0, i + 1, 14, 256, 256);
 
     }
 

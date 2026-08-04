@@ -16,36 +16,26 @@
 
 package ironfurnaces.network;
 
-import ironfurnaces.IronFurnaces;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import net.neoforged.neoforge.network.PacketDistributor;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.network.registration.PayloadRegistrar;
-
 
 public class Messages {
 
-
-    @SubscribeEvent
-    public static void onRegisterPayloadHandler(RegisterPayloadHandlersEvent event) {
-        final PayloadRegistrar registrar = event.registrar(IronFurnaces.MOD_ID)
-                .versioned("1.0")
-                .optional();
-        registrar.playToServer(PacketFurnaceSettings.TYPE, PacketFurnaceSettings.CODEC, PacketFurnaceSettings::handle);
-        registrar.playToServer(PacketShowConfig.TYPE, PacketShowConfig.CODEC, PacketShowConfig::handle);
-
+    public static void register() {
+        PayloadTypeRegistry.serverboundPlay().register(PacketFurnaceSettings.TYPE, PacketFurnaceSettings.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(PacketShowConfig.TYPE, PacketShowConfig.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(PacketFurnaceSettings.TYPE, (payload, context) -> payload.handle(context));
+        ServerPlayNetworking.registerGlobalReceiver(PacketShowConfig.TYPE, (payload, context) -> payload.handle(context));
     }
 
     public static <MSG extends CustomPacketPayload> void sendToServer(MSG message) {
-        ClientPacketDistributor.sendToServer(message);
+        net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send(message);
     }
 
     public static <MSG extends CustomPacketPayload> void sendToPlayer(MSG message, ServerPlayer player) {
-        PacketDistributor.sendToPlayer(player, message);
+        ServerPlayNetworking.send(player, message);
     }
-
 
 }

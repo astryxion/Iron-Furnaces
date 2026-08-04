@@ -87,13 +87,6 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
 
     private int timer;
     private Random rand = new Random();
-    private static final int TANK_X = 33;
-    private static final int TANK_Y = 22;
-    private static final int TANK_W = 10;
-    private static final int TANK_H = 42;
-    private static final int TANK_LEVELS = 5;
-    private static final Identifier LAVA_TEXTURE = Identifier.fromNamespaceAndPath("minecraft", "textures/block/lava_still.png");
-    private static final Identifier SOUL_LAVA_TEXTURE = Identifier.fromNamespaceAndPath("allthemodium", "textures/block/soul_lava_still.png");
 
     public BlockIronFurnaceScreenBase(T t, Inventory inv, Component name) {
         super(t, inv, name);
@@ -107,8 +100,8 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
     @Override
     protected void init() {
         super.init();
-        int left = getGuiLeft();
-        int top = getGuiTop();
+        int left = leftPos;
+        int top = topPos;
         energyBar = new FurnaceGuiEnergy(left, top, 109, 22, 14, 42, 176, 14);
         autoSplitButton = new FurnaceGuiButton(left, top, 9, 56, 14, 14,112, 189);
         augmentButton = new FurnaceGuiButton(left, top, 161, 4, 11, 11);
@@ -147,8 +140,8 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
 
     @Override
     public void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        int actualMouseX = mouseX - ((this.width - this.getXSize()) / 2);
-        int actualMouseY = mouseY - ((this.height - this.getYSize()) / 2);
+        int actualMouseX = mouseX - ((this.width - this.imageWidth) / 2);
+        int actualMouseY = mouseY - ((this.height - this.imageHeight) / 2);
         if (this.getMenu().isRainbowFurnace())
         {
             timer++;
@@ -157,7 +150,7 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
                 String name = this.name.getString();
                 ArrayList<Component> names = Lists.newArrayList();
                 for (int i = 0; i < name.length(); i++) {
-                    names.add((Component) Component.literal("" + name.charAt(i)).withStyle(ChatFormatting.getById(ItemMillionFurnace.getIDRandom(rand.nextInt(6)))));
+                    names.add((Component) Component.literal("" + name.charAt(i)).withStyle(ItemMillionFurnace.getRandomFormatting(rand.nextInt(6))));
                 }
                 MutableComponent component = Component.literal("");
                 for (int i = 0; i < names.size(); i++) {
@@ -169,11 +162,11 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
         }
 
         if (this.getMenu().getIsFactory())
-            graphics.text(font, name, this.getXSize() / 2 - this.minecraft.font.width(name.getString()) / 2, -10, 16777215, false);
+            graphics.text(font, name, this.imageWidth / 2 - this.minecraft.font.width(name.getString()) / 2, -10, 16777215, false);
         else
-            graphics.text(font, name, this.getMenu().getIsFurnace() ? 7 + this.getXSize() / 2 - this.minecraft.font.width(name.getString()) / 2 : this.getXSize() / 2 - this.minecraft.font.width(name.getString()) / 2, 6, 4210752, false);
+            graphics.text(font, name, this.getMenu().getIsFurnace() ? 7 + this.imageWidth / 2 - this.minecraft.font.width(name.getString()) / 2 : this.imageWidth / 2 - this.minecraft.font.width(name.getString()) / 2, 6, 4210752, false);
 
-        graphics.text(font, this.playerInv.getDisplayName(), 7, this.getYSize() - 93, 4210752, false);
+        graphics.text(font, this.playerInv.getName(), 7, this.imageHeight - 93, 4210752, false);
 
         if (showInventoryButtons() && this.getMenu().getRedstoneMode() == 4) {
             int comSub = this.getMenu().getComSub();
@@ -186,8 +179,8 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
     }
 
     private void addTooltips(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        int tooltipX = getGuiLeft() + mouseX;
-        int tooltipY = getGuiTop() + mouseY;
+        int tooltipX = leftPos + mouseX;
+        int tooltipY = topPos + mouseY;
 
         augmentButton.renderTooltip(font, graphics, Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_open_augments"), tooltipX, tooltipY, mouseX, mouseY, !getMenu().getAugmentGUI());
         augmentButton.renderTooltip(font, graphics, Component.translatable("tooltip." + IronFurnaces.MOD_ID + ".gui_open_furnace"), tooltipX, tooltipY, mouseX, mouseY, getMenu().getAugmentGUI());
@@ -195,7 +188,6 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
         energyBar.changePos(9, 7, getMenu().getIsFactory() && !getMenu().getAugmentGUI());
         energyBar.renderTooltip(font, graphics, tooltipX, tooltipY, mouseX, mouseY, getMenu().getEnergy(), getMenu().getMaxEnergy(), getMenu().getIsGenerator() && !getMenu().getAugmentGUI());
         energyBar.renderTooltip(font, graphics, tooltipX, tooltipY, mouseX, mouseY, getMenu().getEnergy(), getMenu().getMaxEnergy(), getMenu().getIsFactory() && !getMenu().getAugmentGUI());
-        addGeneratorTankTooltip(graphics, tooltipX, tooltipY, mouseX, mouseY);
         List<Component> tl = Lists.newArrayList(Component.literal("Auto Split"), Component.literal("ON"));
         autoSplitButton.renderComponentTooltip(font, graphics, tl, tooltipX, tooltipY, mouseX, mouseY, getMenu().isAutoSplit() && getMenu().getIsFactory() && !getMenu().getAugmentGUI());
         tl = Lists.newArrayList(Component.literal("Auto Split"), Component.literal("OFF"));
@@ -260,23 +252,23 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
         {
             if (this.getMenu().getIsFactory())
             {
-                matrix.blit(RenderPipelines.GUI_TEXTURED, GUI_FACTORY, relX, relY, 0, 0, this.getXSize(), this.getYSize(), 256, 256);
+                matrix.blit(RenderPipelines.GUI_TEXTURED, GUI_FACTORY, relX, relY, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
 
             }
             if (this.getMenu().getIsGenerator())
             {
-                matrix.blit(RenderPipelines.GUI_TEXTURED, GUI_GENERATOR, relX, relY, 0, 0, this.getXSize(), this.getYSize(), 256, 256);
+                matrix.blit(RenderPipelines.GUI_TEXTURED, GUI_GENERATOR, relX, relY, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
 
             }
             if (!getMenu().getIsGenerator() && !getMenu().getIsFactory())
             {
-                matrix.blit(RenderPipelines.GUI_TEXTURED, GUI, relX, relY, 0, 0, this.getXSize(), this.getYSize(), 256, 256);
+                matrix.blit(RenderPipelines.GUI_TEXTURED, GUI, relX, relY, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
             }
 
         }
         else
         {
-            matrix.blit(RenderPipelines.GUI_TEXTURED, GUI_AUGMENTS, relX, relY, 0, 0, this.getXSize(), this.getYSize(), 256, 256);
+            matrix.blit(RenderPipelines.GUI_TEXTURED, GUI_AUGMENTS, relX, relY, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
 
         }
     }
@@ -289,11 +281,11 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
             int i;
             if (this.getMenu().isBurning()) {
                 i = this.getMenu().getBurnLeftScaled(13);
-                matrix.blit(RenderPipelines.GUI_TEXTURED, GUI, getGuiLeft() + 56, getGuiTop() + 36 + 12 - i, 176, 12 - i, 14, i + 1, 256, 256);
+                matrix.blit(RenderPipelines.GUI_TEXTURED, GUI, leftPos + 56, topPos + 36 + 12 - i, 176, 12 - i, 14, i + 1, 256, 256);
             }
 
             i = this.getMenu().getCookScaled(24);
-            matrix.blit(RenderPipelines.GUI_TEXTURED, GUI, getGuiLeft() + 79, getGuiTop() + 34, 176, 14, i + 1, 16, 256, 256);
+            matrix.blit(RenderPipelines.GUI_TEXTURED, GUI, leftPos + 79, topPos + 34, 176, 14, i + 1, 16, 256, 256);
         }
     }
 
@@ -304,78 +296,10 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
             int i;
             if (this.getMenu().isGeneratorBurning()) {
                 i = this.getMenu().getGeneratorBurnScaled(13);
-                matrix.blit(RenderPipelines.GUI_TEXTURED, GUI_GENERATOR, getGuiLeft() + 56, getGuiTop() + 23 + 12 - i, 176, 12 - i, 14, i + 1, 256, 256);
+                matrix.blit(RenderPipelines.GUI_TEXTURED, GUI_GENERATOR, leftPos + 56, topPos + 23 + 12 - i, 176, 12 - i, 14, i + 1, 256, 256);
             }
             energyBar.render(GUI_GENERATOR, matrix, getMenu().getEnergyScaled(42));
         }
-    }
-
-    private void renderGeneratorTank(GuiGraphicsExtractor matrix) {
-        int amountMb = getMenu().getFluidAmountMb();
-        int capMb = Math.max(1, getMenu().getFluidCapacityMb());
-        int scaled = Math.max(0, Math.min(TANK_H, amountMb * TANK_H / capMb));
-        int x0 = getGuiLeft() + TANK_X;
-        int y0 = getGuiTop() + TANK_Y;
-
-        matrix.fill(x0 - 1, y0 - 1, x0 + TANK_W + 1, y0 + TANK_H + 1, 0xFF3A3A3A);
-        matrix.fill(x0, y0, x0 + TANK_W, y0 + TANK_H, 0xFF121212);
-        if (scaled > 0) {
-            drawFluidTexture(matrix, getMenu().getFluidType(), x0, y0 + TANK_H - scaled, TANK_W, scaled);
-        }
-        for (int level = 1; level < TANK_LEVELS; level++) {
-            int lineY = y0 + (TANK_H * level) / TANK_LEVELS;
-            matrix.fill(x0, lineY, x0 + TANK_W, lineY + 1, 0x55222222);
-        }
-    }
-
-    private void drawFluidTexture(GuiGraphicsExtractor graphics, int fluidType, int x, int y, int width, int height) {
-        Identifier texture = getFluidTexture(fluidType);
-        if (texture == null) {
-            graphics.fill(x, y, x + width, y + height, 0xFF777777);
-            return;
-        }
-        graphics.enableScissor(x, y, x + width, y + height);
-        for (int yy = y; yy < y + height; yy += 16) {
-            for (int xx = x; xx < x + width; xx += 16) {
-                graphics.blit(RenderPipelines.GUI_TEXTURED, texture, xx, yy, 0, 0, 16, 16, 16, 16);
-            }
-        }
-        graphics.disableScissor();
-    }
-
-    private Identifier getFluidTexture(int fluidType) {
-        if (fluidType == 1) {
-            return LAVA_TEXTURE;
-        }
-        if (fluidType == 2) {
-            return SOUL_LAVA_TEXTURE;
-        }
-        return null;
-    }
-
-    private void addGeneratorTankTooltip(GuiGraphicsExtractor graphics, int tooltipX, int tooltipY, int mouseX, int mouseY) {
-        if (!getMenu().getIsGenerator() || getMenu().getAugmentGUI()) {
-            return;
-        }
-        if (mouseX < TANK_X || mouseX > TANK_X + TANK_W || mouseY < TANK_Y || mouseY > TANK_Y + TANK_H) {
-            return;
-        }
-
-        int amountMb = getMenu().getFluidAmountMb();
-        int capMb = Math.max(1, getMenu().getFluidCapacityMb());
-        Component fluidName;
-        if (getMenu().getFluidType() == 1) {
-            fluidName = Component.translatable("block.minecraft.lava").withStyle(ChatFormatting.GOLD);
-        } else if (getMenu().getFluidType() == 2) {
-            fluidName = Component.translatable("block.allthemodium.soul_lava").withStyle(ChatFormatting.AQUA);
-        } else {
-            fluidName = Component.literal("Empty").withStyle(ChatFormatting.DARK_GRAY);
-        }
-        graphics.setComponentTooltipForNextFrame(font, List.of(
-                Component.literal("Liquid Fuel").withStyle(ChatFormatting.GRAY),
-                fluidName,
-                Component.literal(amountMb + " / " + capMb + " mB").withStyle(ChatFormatting.YELLOW)
-        ), tooltipX, tooltipY);
     }
 
     protected void renderFactoryBg(GuiGraphicsExtractor matrix)
@@ -391,27 +315,24 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
             for (int j = 0; j < getMenu().getFactoryCooktimeSize(); j++)
             {
                 i = this.getMenu().getFactoryCookScaled(j, 22);
-                matrix.blit(RenderPipelines.GUI_TEXTURED, GUI_FACTORY, getGuiLeft() + 29 + (21 * j), getGuiTop() + 27, 176, 0, 15, i + 1, 256, 256);
+                matrix.blit(RenderPipelines.GUI_TEXTURED, GUI_FACTORY, leftPos + 29 + (21 * j), topPos + 27, 176, 0, 15, i + 1, 256, 256);
             }
         }
     }
 
     @Override
     public void extractBackground(GuiGraphicsExtractor matrix, int mouseX, int mouseY, float partialTicks) {
-        int relX = (this.width - this.getXSize()) / 2;
-        int relY = (this.height - this.getYSize()) / 2;
+        int relX = (this.width - this.imageWidth) / 2;
+        int relY = (this.height - this.imageHeight) / 2;
         bg(matrix, relX, relY);
         renderFurnaceBg(matrix);
         renderGeneratorBg(matrix);
         renderFactoryBg(matrix);
-        int actualMouseX = mouseX - ((this.width - this.getXSize()) / 2);
-        int actualMouseY = mouseY - ((this.height - this.getYSize()) / 2);
+        int actualMouseX = mouseX - ((this.width - this.imageWidth) / 2);
+        int actualMouseY = mouseY - ((this.height - this.imageHeight) / 2);
         this.addFactoryButtons(matrix, actualMouseX, actualMouseY);
         this.addInventoryButtons(matrix, actualMouseX, actualMouseY);
         this.addRedstoneButtons(matrix, actualMouseX, actualMouseY);
-        if (getMenu().getIsGenerator() && !getMenu().getAugmentGUI()) {
-            renderGeneratorTank(matrix);
-        }
     }
 
     protected void addSlots(GuiGraphicsExtractor matrix, int amount)
@@ -420,12 +341,12 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
         {
             if (amount > 0)
             {
-                matrix.blit(RenderPipelines.GUI_TEXTURED, GUI_FACTORY, getGuiLeft() + 48, getGuiTop() + 5, 176, 64, 18, 67, 256, 256);
-                matrix.blit(RenderPipelines.GUI_TEXTURED, GUI_FACTORY, getGuiLeft() + 111, getGuiTop() + 5, 176, 64, 18, 67, 256, 256);
+                matrix.blit(RenderPipelines.GUI_TEXTURED, GUI_FACTORY, leftPos + 48, topPos + 5, 176, 64, 18, 67, 256, 256);
+                matrix.blit(RenderPipelines.GUI_TEXTURED, GUI_FACTORY, leftPos + 111, topPos + 5, 176, 64, 18, 67, 256, 256);
                 if (amount == 2)
                 {
-                    matrix.blit(RenderPipelines.GUI_TEXTURED, GUI_FACTORY, getGuiLeft() + 27, getGuiTop() + 5, 176, 64, 18, 67, 256, 256);
-                    matrix.blit(RenderPipelines.GUI_TEXTURED, GUI_FACTORY, getGuiLeft() + 132, getGuiTop() + 5, 176, 64, 18, 67, 256, 256);
+                    matrix.blit(RenderPipelines.GUI_TEXTURED, GUI_FACTORY, leftPos + 27, topPos + 5, 176, 64, 18, 67, 256, 256);
+                    matrix.blit(RenderPipelines.GUI_TEXTURED, GUI_FACTORY, leftPos + 132, topPos + 5, 176, 64, 18, 67, 256, 256);
                 }
             }
 
@@ -463,9 +384,9 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
 
     private void addInventoryButtons(GuiGraphicsExtractor matrix, int mouseX, int mouseY) {
         if (!showInventoryButtons()) {
-            matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, getGuiLeft() - 20, getGuiTop() + 4, 0, 28, 23, 26, 256, 256);
+            matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, leftPos - 20, topPos + 4, 0, 28, 23, 26, 256, 256);
         } else if (showInventoryButtons()) {
-            matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, getGuiLeft() - 56, getGuiTop() + 4, 0, 54, 59, 107, 256, 256);
+            matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, leftPos - 56, topPos + 4, 0, 54, 59, 107, 256, 256);
             autoInputButton.render(WIDGETS, matrix, mouseX, mouseY, getMenu().getAutoInput());
             autoOutputButton.render(WIDGETS, matrix, mouseX, mouseY, getMenu().getAutoOutput());
             this.blitIO(matrix, mouseX, mouseY);
@@ -517,20 +438,20 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
         if (input || both) {
             if (getMenu().getIsFurnace())
             {
-                matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, getGuiLeft() + 55, getGuiTop() + 16, 0, 171, 18, 18, 256, 256);
+                matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, leftPos + 55, topPos + 16, 0, 171, 18, 18, 256, 256);
             }
             if (getMenu().getIsFactory())
             {
-                matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, getGuiLeft() + 69, getGuiTop() + 5, 0, 171, 18, 18, 256, 256);
-                matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, getGuiLeft() + 90, getGuiTop() + 5, 0, 171, 18, 18, 256, 256);
+                matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, leftPos + 69, topPos + 5, 0, 171, 18, 18, 256, 256);
+                matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, leftPos + 90, topPos + 5, 0, 171, 18, 18, 256, 256);
                 if (getMenu().getTier() > 0)
                 {
-                    matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, getGuiLeft() + 48, getGuiTop() + 5, 0, 171, 18, 18, 256, 256);
-                    matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, getGuiLeft() + 111, getGuiTop() + 5, 0, 171, 18, 18, 256, 256);
+                    matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, leftPos + 48, topPos + 5, 0, 171, 18, 18, 256, 256);
+                    matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, leftPos + 111, topPos + 5, 0, 171, 18, 18, 256, 256);
                     if (getMenu().getTier() > 1)
                     {
-                        matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, getGuiLeft() + 27, getGuiTop() + 5, 0, 171, 18, 18, 256, 256);
-                        matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, getGuiLeft() + 132, getGuiTop() + 5, 0, 171, 18, 18, 256, 256);
+                        matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, leftPos + 27, topPos + 5, 0, 171, 18, 18, 256, 256);
+                        matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, leftPos + 132, topPos + 5, 0, 171, 18, 18, 256, 256);
                     }
                 }
             }
@@ -540,20 +461,20 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
         if (output || both) {
             if (getMenu().getIsFurnace())
             {
-                matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, getGuiLeft() + 111, getGuiTop() + 30, 0, 203, 26, 26, 256, 256);
+                matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, leftPos + 111, topPos + 30, 0, 203, 26, 26, 256, 256);
             }
             if (getMenu().getIsFactory())
             {
-                matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, getGuiLeft() + 69, getGuiTop() + 54, 36, 171, 18, 18, 256, 256);
-                matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, getGuiLeft() + 90, getGuiTop() + 54, 36, 171, 18, 18, 256, 256);
+                matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, leftPos + 69, topPos + 54, 36, 171, 18, 18, 256, 256);
+                matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, leftPos + 90, topPos + 54, 36, 171, 18, 18, 256, 256);
                 if (getMenu().getTier() > 0)
                 {
-                    matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, getGuiLeft() + 48, getGuiTop() + 54, 36, 171, 18, 18, 256, 256);
-                    matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, getGuiLeft() + 111, getGuiTop() + 54, 36, 171, 18, 18, 256, 256);
+                    matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, leftPos + 48, topPos + 54, 36, 171, 18, 18, 256, 256);
+                    matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, leftPos + 111, topPos + 54, 36, 171, 18, 18, 256, 256);
                     if (getMenu().getTier() > 1)
                     {
-                        matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, getGuiLeft() + 27, getGuiTop() + 54, 36, 171, 18, 18, 256, 256);
-                        matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, getGuiLeft() + 132, getGuiTop() + 54, 36, 171, 18, 18, 256, 256);
+                        matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, leftPos + 27, topPos + 54, 36, 171, 18, 18, 256, 256);
+                        matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, leftPos + 132, topPos + 54, 36, 171, 18, 18, 256, 256);
                     }
                 }
             }
@@ -561,11 +482,11 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
         if (fuel) {
             if (getMenu().getIsFurnace())
             {
-                matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, getGuiLeft() + 55, getGuiTop() + 52, 18, 171, 18, 18, 256, 256);
+                matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, leftPos + 55, topPos + 52, 18, 171, 18, 18, 256, 256);
             }
             if (getMenu().getIsGenerator())
             {
-                matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, getGuiLeft() + 55, getGuiTop() + 39, 18, 171, 18, 18, 256, 256);
+                matrix.blit(RenderPipelines.GUI_TEXTURED, WIDGETS, leftPos + 55, topPos + 39, 18, 171, 18, 18, 256, 256);
             }
         }
     }
@@ -575,8 +496,8 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
         double mouseX = event.x();
         double mouseY = event.y();
         int button = event.button();
-        double actualMouseX = mouseX - (((double) this.width - (double) this.getXSize()) / 2);
-        double actualMouseY = mouseY - (((double) this.height - (double) this.getYSize()) / 2);
+        double actualMouseX = mouseX - (((double) this.width - (double) this.imageWidth) / 2);
+        double actualMouseY = mouseY - (((double) this.height - (double) this.imageHeight) / 2);
         this.mouseClickedRedstoneButtons(actualMouseX, actualMouseY);
         this.mouseClickedInventoryButtons(button, actualMouseX, actualMouseY);
         this.mouseClickedAugmentButton(actualMouseX, actualMouseY);

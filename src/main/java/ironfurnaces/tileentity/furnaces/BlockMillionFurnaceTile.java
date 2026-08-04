@@ -27,14 +27,12 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.common.ModConfigSpec;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class BlockMillionFurnaceTile extends BlockIronFurnaceTileBase {
     public BlockMillionFurnaceTile(BlockPos pos, BlockState state) {
-        super(ironfurnaces.init.Registration.MILLION_FURNACE_TILE.get(), pos, state);
+        super(ironfurnaces.init.Registration.MILLION_FURNACE_TILE, pos, state);
     }
 
     public List<BlockIronFurnaceTileBase> furnaces = new ArrayList<>();
@@ -74,7 +72,7 @@ public class BlockMillionFurnaceTile extends BlockIronFurnaceTileBase {
     }
 
     @Override
-    public ModConfigSpec.IntValue getCookTimeConfig() {
+    public Config.IntValue getCookTimeConfig() {
         return Config.millionFurnaceSpeed;
     }
 
