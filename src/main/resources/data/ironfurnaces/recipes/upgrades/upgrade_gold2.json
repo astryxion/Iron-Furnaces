@@ -6,22 +6,22 @@
     "#Y#"
   ],
   "key": {
-    "Y": {
-      "item": "minecraft:gold_block"
+    "#": {
+      "tag": "c:gold_ingots"
     },
     "X": {
-      "item": "ironfurnaces:silver_furnace"
+      "tag": "c:silver_ingots"
     },
-    "#": {
-      "tag": "c:glass"
+    "Y": {
+      "item": "minecraft:gold_block"
     }
   },
   "result": {
     "item": "ironfurnaces:upgrade_gold2"
   },
-  "conditions": [
+  "fabric:load_conditions": [
     {
-      "type": "fabric:tags_populated",
+      "condition": "fabric:tags_populated",
       "values": [
         "c:silver_ingots"
       ]

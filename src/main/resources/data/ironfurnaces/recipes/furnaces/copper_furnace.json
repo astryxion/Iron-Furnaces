@@ -15,5 +15,13 @@
   },
   "result": {
     "item": "ironfurnaces:copper_furnace"
-  }
+  },
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:tags_populated",
+      "values": [
+        "c:copper_ingots"
+      ]
+    }
+  ]
 }

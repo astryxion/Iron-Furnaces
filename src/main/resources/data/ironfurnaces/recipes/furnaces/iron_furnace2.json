@@ -10,10 +10,10 @@
       "tag": "c:glass"
     },
     "X": {
-      "item": "ironfurnaces:copper_furnace"
+      "tag": "forge:furnaces/copper"
     },
     "Y": {
-      "item": "minecraft:iron_ingot"
+      "tag": "c:iron_ingots"
     }
   },
   "result": {

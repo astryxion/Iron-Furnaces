@@ -10,7 +10,7 @@
       "tag": "c:silver_ingots"
     },
     "X": {
-      "item": "ironfurnaces:iron_furnace"
+      "tag": "c:iron_ingots"
     },
     "G": {
       "tag": "c:glass"
@@ -19,9 +19,9 @@
   "result": {
     "item": "ironfurnaces:upgrade_silver2"
   },
-  "conditions": [
+  "fabric:load_conditions": [
     {
-      "type": "fabric:tags_populated",
+      "condition": "fabric:tags_populated",
       "values": [
         "c:silver_ingots"
       ]

@@ -7,10 +7,10 @@
   ],
   "key": {
     "#": {
-      "item": "minecraft:gold_ingot"
+      "tag": "c:gold_ingots"
     },
     "X": {
-      "item": "ironfurnaces:iron_furnace"
+      "tag": "c:iron_ingots"
     },
     "Y": {
       "item": "minecraft:gold_block"

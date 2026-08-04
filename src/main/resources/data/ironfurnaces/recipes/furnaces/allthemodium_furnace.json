@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "B#B",
+    "#X#",
+    "B#B"
+  ],
+  "key": {
+    "#": {
+      "tag": "forge:ingots/allthemodium"
+    },
+    "X": {
+      "tag": "forge:furnaces/netherite"
+    },
+    "B": {
+      "tag": "forge:storage_blocks/allthemodium"
+    }
+  },
+  "result": {
+    "item": "ironfurnaces:allthemodium_furnace"
+  },
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": ["allthemodium"]
+    }
+  ]
+}

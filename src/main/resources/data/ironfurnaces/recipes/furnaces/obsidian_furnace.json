@@ -10,7 +10,7 @@
       "item": "minecraft:obsidian"
     },
     "X": {
-      "item": "ironfurnaces:emerald_furnace"
+      "tag": "forge:furnaces/emerald"
     },
     "Y": {
       "item": "minecraft:blaze_rod"

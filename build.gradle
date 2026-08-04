@@ -44,7 +44,10 @@ dependencies {
 	include "com.electronwill.night-config:core:3.6.4"
 	include "com.electronwill.night-config:toml:3.6.4"
 
-	modCompileOnly "mezz.jei:jei-1.20.1-fabric:15.2.0.27"
+	// JEI: optional — compile against API only; full mod in runClient via modLocalRuntime (not bundled for players)
+	modCompileOnly "mezz.jei:jei-1.20.1-common-api:${project.jei_version}"
+	modCompileOnly "mezz.jei:jei-1.20.1-fabric-api:${project.jei_version}"
+	modLocalRuntime "mezz.jei:jei-1.20.1-fabric:${project.jei_version}"
 }
 
 processResources {

@@ -2,7 +2,7 @@ modLoader="javafml" #mandatory
 
 loaderVersion="[46,)" #mandatory This is typically bumped every Minecraft version by Forge. See our download page for lists of versions.
 
-license="GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007"
+license="Apache License Version 2.0"
 
 [[mods]] #mandatory
 
@@ -16,13 +16,13 @@ itemIcon="ironfurnaces:iron_furnace"
 
 logoFile="ironfurnaces_logo.png"
 
-displayURL="https://www.curseforge.com/minecraft/mc-mods/iron-furnaces/" #optional
+displayURL="https://github.com/astryxion/Iron-Furnaces" #optional
 
-credits="Java, JetBrains, Minecraft, MinecraftForge, LexManos, mezz, Ellpeck, KingLemming" #optional
+credits="Astryxion, pizzatime, XenoMustache" #optional
 
-authors="Qelifern (pizzaatime), XenoMustache, BOLT_M4G1C"
+authors="Astryxion"
 
-description='''IronFurnaces introduces a selection of metal furnaces, offering different tiers to fulfill your smelting needs effortlessly.'''
+description='''Iron Furnaces but newer — upgraded metal furnaces for faster smelting.'''
 
 # Display Test controls the display for your mod in the server connection screen
 # MATCH_VERSION means that your mod will cause a red X if the versions on client and server differ. This is the default behaviour and should be what you choose if you have server and client elements to your mod.
@@ -48,6 +48,6 @@ description='''IronFurnaces introduces a selection of metal furnaces, offering d
 [[dependencies.ironfurnaces]]
    modId="jei"
    mandatory=false
-   versionRange="[13,)"
+   versionRange="[15.2.0.27,)"
    ordering="NONE"
    side="BOTH"

@@ -49,17 +49,26 @@
 /*     */   
 /*     */   public void registerRecipes(IRecipeRegistration registration) {
 /*  51 */     if (((Boolean)Config.enableJeiPlugin.get()).booleanValue()) {
-/*     */       registration
-/*     */           .getIngredientManager()
-/*     */           .removeIngredientsAtRuntime(
-/*     */               VanillaTypes.ITEM_STACK,
-/*     */               List.of(
-/*     */                   new ItemStack((ItemLike) Registration.ALLTHEMODIUM_FURNACE_ITEM.get()),
-/*     */                   new ItemStack((ItemLike) Registration.VIBRANIUM_FURNACE_ITEM.get()),
-/*     */                   new ItemStack((ItemLike) Registration.UNOBTAINIUM_FURNACE_ITEM.get()),
-/*     */                   new ItemStack((ItemLike) Registration.ALLTHEMODIUM_UPGRADE.get()),
-/*     */                   new ItemStack((ItemLike) Registration.VIBRANIUM_UPGRADE.get()),
-/*     */                   new ItemStack((ItemLike) Registration.UNOBTAINIUM_UPGRADE.get())));
+/*     */       List<ItemStack> hidden = Lists.newArrayList();
+/*     */       if (!Registration.isAtmContentAvailable()) {
+/*     */         hidden.add(new ItemStack((ItemLike) Registration.ALLTHEMODIUM_FURNACE_ITEM.get()));
+/*     */         hidden.add(new ItemStack((ItemLike) Registration.VIBRANIUM_FURNACE_ITEM.get()));
+/*     */         hidden.add(new ItemStack((ItemLike) Registration.UNOBTAINIUM_FURNACE_ITEM.get()));
+/*     */         hidden.add(new ItemStack((ItemLike) Registration.ALLTHEMODIUM_UPGRADE.get()));
+/*     */         hidden.add(new ItemStack((ItemLike) Registration.VIBRANIUM_UPGRADE.get()));
+/*     */         hidden.add(new ItemStack((ItemLike) Registration.UNOBTAINIUM_UPGRADE.get()));
+/*     */       }
+/*     */       if (!Registration.isSilverContentAvailable()) {
+/*     */         hidden.add(new ItemStack((ItemLike) Registration.SILVER_FURNACE_ITEM.get()));
+/*     */         hidden.add(new ItemStack((ItemLike) Registration.SILVER_UPGRADE.get()));
+/*     */         hidden.add(new ItemStack((ItemLike) Registration.SILVER2_UPGRADE.get()));
+/*     */         hidden.add(new ItemStack((ItemLike) Registration.GOLD2_UPGRADE.get()));
+/*     */       }
+/*     */       if (!hidden.isEmpty()) {
+/*     */         registration
+/*     */             .getIngredientManager()
+/*     */             .removeIngredientsAtRuntime(VanillaTypes.ITEM_STACK, hidden);
+/*     */       }
 /*     */ 
 /*     */       
 /*  54 */       List<SimpleGeneratorRecipe> recipes = Lists.newArrayList();
@@ -132,7 +141,9 @@
 /* 109 */       registry.addRecipeCatalyst(new ItemStack((ItemLike)Registration.CRYSTAL_FURNACE.get()), new mezz.jei.api.recipe.RecipeType[] { RecipeTypes.SMELTING });
 /* 110 */       registry.addRecipeCatalyst(new ItemStack((ItemLike)Registration.NETHERITE_FURNACE.get()), new mezz.jei.api.recipe.RecipeType[] { RecipeTypes.SMELTING });
 /* 111 */       registry.addRecipeCatalyst(new ItemStack((ItemLike)Registration.COPPER_FURNACE.get()), new mezz.jei.api.recipe.RecipeType[] { RecipeTypes.SMELTING });
-/* 112 */       registry.addRecipeCatalyst(new ItemStack((ItemLike)Registration.SILVER_FURNACE.get()), new mezz.jei.api.recipe.RecipeType[] { RecipeTypes.SMELTING });
+/*     */       if (Registration.isSilverContentAvailable()) {
+/* 112 */         registry.addRecipeCatalyst(new ItemStack((ItemLike)Registration.SILVER_FURNACE.get()), new mezz.jei.api.recipe.RecipeType[] { RecipeTypes.SMELTING });
+/*     */       }
 /*     */       
 /* 114 */       if (((Boolean)Config.enableRainbowContent.get()).booleanValue()) {
 /* 115 */         registry.addRecipeCatalyst(new ItemStack((ItemLike)Registration.MILLION_FURNACE.get()), new mezz.jei.api.recipe.RecipeType[] { RecipeTypes.SMELTING });
@@ -146,7 +157,9 @@
 /* 123 */       registry.addRecipeCatalyst(new ItemStack((ItemLike)Registration.CRYSTAL_FURNACE.get()), new mezz.jei.api.recipe.RecipeType[] { RecipeTypes.FUELING });
 /* 124 */       registry.addRecipeCatalyst(new ItemStack((ItemLike)Registration.NETHERITE_FURNACE.get()), new mezz.jei.api.recipe.RecipeType[] { RecipeTypes.FUELING });
 /* 125 */       registry.addRecipeCatalyst(new ItemStack((ItemLike)Registration.COPPER_FURNACE.get()), new mezz.jei.api.recipe.RecipeType[] { RecipeTypes.FUELING });
-/* 126 */       registry.addRecipeCatalyst(new ItemStack((ItemLike)Registration.SILVER_FURNACE.get()), new mezz.jei.api.recipe.RecipeType[] { RecipeTypes.FUELING });
+/*     */       if (Registration.isSilverContentAvailable()) {
+/* 126 */         registry.addRecipeCatalyst(new ItemStack((ItemLike)Registration.SILVER_FURNACE.get()), new mezz.jei.api.recipe.RecipeType[] { RecipeTypes.FUELING });
+/*     */       }
 /*     */       
 /* 128 */       if (((Boolean)Config.enableRainbowContent.get()).booleanValue()) {
 /* 129 */         registry.addRecipeCatalyst(new ItemStack((ItemLike)Registration.MILLION_FURNACE.get()), new mezz.jei.api.recipe.RecipeType[] { RecipeTypes.FUELING });

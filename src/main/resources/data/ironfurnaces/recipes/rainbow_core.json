@@ -1,5 +1,5 @@
 {
-  "type": "crafting_shaped",
+  "type": "minecraft:crafting_shaped",
   "pattern": [
     "ROY",
     "FGF",
@@ -34,9 +34,9 @@
   "result": {
     "item": "ironfurnaces:rainbow_core"
   },
-  "conditions": [
+  "fabric:load_conditions": [
     {
-      "type": "ironfurnaces:rainbow"
+      "condition": "ironfurnaces:rainbow"
     }
   ]
 }

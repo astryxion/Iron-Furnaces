@@ -1,5 +1,5 @@
 {
-  "type": "crafting_shaped",
+  "type": "minecraft:crafting_shaped",
   "pattern": [
     "#R#",
     "PXP",
@@ -7,13 +7,13 @@
   ],
   "key": {
     "#": {
-      "tag": "forge:stone"
+      "tag": "c:stone"
     },
     "P": {
       "item": "minecraft:paper"
     },
     "R": {
-      "tag": "forge:dusts/redstone"
+      "item": "minecraft:redstone"
     },
     "X": {
       "item": "minecraft:repeater"

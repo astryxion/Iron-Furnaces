@@ -76,11 +76,15 @@ import ironfurnaces.tileentity.furnaces.BlockSilverFurnaceTile;
 import ironfurnaces.tileentity.furnaces.other.BlockUnobtainiumFurnaceTile;
 import ironfurnaces.tileentity.furnaces.other.BlockVibraniumFurnaceTile;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
+import net.minecraftforge.fml.ModList;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
@@ -96,6 +100,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import java.util.Optional;
 import java.util.Set;
 
 public class Registration {
@@ -116,8 +121,8 @@ public class Registration {
     return new ResourceLocation("ironfurnaces", path);
   }
 
-  /** Cross-mod furnaces and upgrades: registered for compatibility but hidden like Forge (no tab/JEI). */
-  private static final Set<ResourceLocation> HIDDEN_FROM_CREATIVE =
+  /** ATM content only appears when Allthemodium is loaded (Forge uses forge:mod_loaded). */
+  private static final Set<ResourceLocation> ATM_CONTENT =
       Set.of(
           id("allthemodium_furnace"),
           id("vibranium_furnace"),
@@ -125,6 +130,26 @@ public class Registration {
           id("upgrade_allthemodium"),
           id("upgrade_vibranium"),
           id("upgrade_unobtainium"));
+
+  /** Silver content only appears when a mod provides silver ingots (same idea as Forge tag_empty gating). */
+  private static final Set<ResourceLocation> SILVER_CONTENT =
+      Set.of(
+          id("silver_furnace"),
+          id("upgrade_silver"),
+          id("upgrade_silver2"),
+          id("upgrade_gold2"));
+
+  public static final TagKey<Item> SILVER_INGOTS =
+      TagKey.create(Registries.ITEM, new ResourceLocation("c", "silver_ingots"));
+
+  public static boolean isSilverContentAvailable() {
+    Optional<HolderSet.Named<Item>> tag = BuiltInRegistries.ITEM.getTag(SILVER_INGOTS);
+    return tag.isPresent() && tag.get().size() > 0;
+  }
+
+  public static boolean isAtmContentAvailable() {
+    return ModList.get().isLoaded("allthemodium");
+  }
 
   private static <T extends Block> RegistryObject<T> bindBlock(String name, T block) {
     RegistryObject<T> ro = new RegistryObject<>();
@@ -752,11 +777,14 @@ public class Registration {
               .icon(() -> new ItemStack((ItemLike) IRON_FURNACE_ITEM.get()))
               .displayItems(
                   (params, output) -> {
+                    boolean silverAvailable = isSilverContentAvailable();
+                    boolean atmAvailable = isAtmContentAvailable();
                     for (Item item : BuiltInRegistries.ITEM) {
                       ResourceLocation rl = BuiltInRegistries.ITEM.getKey(item);
                       if (rl != null
                           && "ironfurnaces".equals(rl.getNamespace())
-                          && !HIDDEN_FROM_CREATIVE.contains(rl)) {
+                          && (atmAvailable || !ATM_CONTENT.contains(rl))
+                          && (silverAvailable || !SILVER_CONTENT.contains(rl))) {
                         output.accept(new ItemStack((ItemLike) item));
                       }
                     }

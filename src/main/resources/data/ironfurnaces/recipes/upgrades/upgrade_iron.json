@@ -10,7 +10,7 @@
       "tag": "c:iron_ingots"
     },
     "X": {
-      "item": "minecraft:furnace"
+      "tag": "minecraft:stone_tool_materials"
     }
   },
   "result": {

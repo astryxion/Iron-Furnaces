@@ -3,14 +3,21 @@
 	"id": "ironfurnaces",
 	"version": "${version}",
 	"name": "Iron Furnaces",
-	"description": "Iron Furnaces (Fabric 1.20.1 port)",
-	"authors": ["Iron Furnaces team"],
-	"license": "MIT",
+	"description": "Iron Furnaces but newer — upgraded metal furnaces for faster smelting.",
+	"authors": ["Astryxion"],
+	"contributors": ["pizzatime", "XenoMustache"],
+	"contact": {
+		"homepage": "https://github.com/astryxion/Iron-Furnaces",
+		"sources": "https://github.com/astryxion/Iron-Furnaces",
+		"issues": "https://github.com/astryxion/Iron-Furnaces/issues"
+	},
+	"license": "Apache-2.0",
 	"icon": "assets/ironfurnaces/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": ["ironfurnaces.IronFurnaces"],
-		"client": ["ironfurnaces.IronFurnacesClient"]
+		"client": ["ironfurnaces.IronFurnacesClient"],
+		"jei_mod_plugin": ["ironfurnaces.jei.IronFurnacesJEIPlugin"]
 	},
 	"mixins": ["ironfurnaces.mixins.json"],
 	"depends": {
@@ -18,5 +25,8 @@
 		"minecraft": "~1.20.1",
 		"java": ">=17",
 		"fabric-api": "*"
+	},
+	"suggests": {
+		"jei": "*"
 	}
 }

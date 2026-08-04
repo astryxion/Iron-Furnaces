@@ -10,7 +10,7 @@
       "item": "minecraft:obsidian"
     },
     "X": {
-      "item": "ironfurnaces:crystal_furnace"
+      "tag": "c:glass"
     },
     "Y": {
       "item": "minecraft:blaze_rod"

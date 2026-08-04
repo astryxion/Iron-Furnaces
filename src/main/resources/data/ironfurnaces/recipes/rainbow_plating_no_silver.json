@@ -27,13 +27,18 @@
     "item": "ironfurnaces:rainbow_plating",
     "count": 8
   },
-  "conditions": [
+  "fabric:load_conditions": [
     {
-      "type": "ironfurnaces:rainbow"
+      "condition": "ironfurnaces:rainbow"
     },
     {
-      "type": "forge:tag_empty",
-      "tag": "forge:ingots/silver"
+      "condition": "fabric:not",
+      "value": {
+        "condition": "fabric:tags_populated",
+        "values": [
+          "c:silver_ingots"
+        ]
+      }
     }
   ]
 }
