@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Specification-Title: ironfurnaces
+Specification-Vendor: Qelifern (pizzaatime), XenoMustache, BOLT_M4G1C
+Specification-Version: 1
+Implementation-Title: IronFurnaces
+Implementation-Version: 4.1.8
+Implementation-Vendor: Qelifern (pizzaatime), XenoMustache, BOLT_M4G1C
+Implementation-Timestamp: 2026-04-07T09:44:05+0200
+

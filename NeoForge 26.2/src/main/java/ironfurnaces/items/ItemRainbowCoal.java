@@ -1,0 +1,74 @@
+/*
+ * Copyright 2025 Astryxion
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ironfurnaces.items;
+
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemInstance;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.block.entity.FuelValues;
+import org.jspecify.annotations.Nullable;
+
+public class ItemRainbowCoal extends Item {
+
+    public ItemRainbowCoal(Properties properties) {
+        super(properties.durability(5120));
+    }
+
+    @Override
+    public boolean isBarVisible(ItemStack p_150899_) {
+        return true;
+    }
+
+    @Override
+    public int getBarWidth(ItemStack stack) {
+        return (int) ((int) 13 * (1 - (double) stack.getDamageValue() / (double) 5120));
+    }
+
+    @Override
+    public int getBarColor(ItemStack p_150901_) {
+        float f = Math.max(0.0F, ((float) 5120 - (float) p_150901_.getDamageValue()) / (float) 5120);
+        return Mth.hsvToRgb(f / 3.0F, 1.0F, 1.0F);
+    }
+
+    @Override
+    public int getBurnTime(ItemStack itemStack, @Nullable RecipeType<?> recipeType, FuelValues fuelValues) {
+        return 200;
+    }
+
+    @Override
+    public @Nullable ItemStackTemplate getCraftingRemainder(ItemInstance instance) {
+        ItemStack stack = (ItemStack) instance;
+        int damage = stack.getDamageValue();
+        if (damage + 1 >= 5120) {
+            return null;
+        }
+        DataComponentPatch patch = DataComponentPatch.builder().set(DataComponents.DAMAGE, damage + 1).build();
+        return new ItemStackTemplate(this, 1, patch);
+    }
+
+    @Override
+    public boolean supportsEnchantment(ItemStack stack, Holder<Enchantment> enchantment) {
+        return false;
+    }
+}

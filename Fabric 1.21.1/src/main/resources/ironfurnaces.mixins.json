@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "ironfurnaces.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "AbstractFurnaceBlockEntityMixin",
+    "ExplosionMixin"
+  ],
+  "client": [
+    "MenuScreensInvoker"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

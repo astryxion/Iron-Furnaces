@@ -1,0 +1,25 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/vibranium"
+      }
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "B#B",
+    "#X#",
+    "B#B"
+  ],
+  "key": {
+    "#": "#c:ingots/vibranium",
+    "B": "#ironfurnaces:vibranium_corners",
+    "X": "#c:ingots/allthemodium"
+  },
+  "result": {
+    "id": "ironfurnaces:upgrade_vibranium"
+  }
+}

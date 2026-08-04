@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "GXG",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "tag": "c:ingots/iron"
+    },
+    "X": {
+      "tag": "c:ingots/copper"
+    },
+    "G": {
+      "tag": "c:glass_blocks/colorless"
+    }
+  },
+  "result": {
+    "id": "ironfurnaces:upgrade_iron2"
+  },
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:tags_populated",
+      "values": [
+        "c:ingots/copper"
+      ]
+    }
+  ]
+}

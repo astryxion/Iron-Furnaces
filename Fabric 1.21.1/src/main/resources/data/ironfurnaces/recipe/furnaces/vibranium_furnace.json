@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "B#B",
+    "#X#",
+    "B#B"
+  ],
+  "key": {
+    "#": {
+      "tag": "c:ingots/vibranium"
+    },
+    "X": {
+      "tag": "c:furnaces/allthemodium"
+    },
+    "B": {
+      "tag": "c:storage_blocks/vibranium"
+    }
+  },
+  "result": {
+    "id": "ironfurnaces:vibranium_furnace"
+  },
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "allthemodium"
+      ]
+    }
+  ]
+}

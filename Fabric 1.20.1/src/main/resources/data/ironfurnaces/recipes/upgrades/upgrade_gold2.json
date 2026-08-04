@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#X#",
+    "#Y#"
+  ],
+  "key": {
+    "#": {
+      "tag": "c:gold_ingots"
+    },
+    "X": {
+      "tag": "c:silver_ingots"
+    },
+    "Y": {
+      "item": "minecraft:gold_block"
+    }
+  },
+  "result": {
+    "item": "ironfurnaces:upgrade_gold2"
+  },
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:tags_populated",
+      "values": [
+        "c:silver_ingots"
+      ]
+    }
+  ]
+}

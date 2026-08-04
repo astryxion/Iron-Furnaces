@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#X#",
+    "#Y#"
+  ],
+  "key": {
+    "Y": {
+      "tag": "c:storage_blocks/gold"
+    },
+    "X": {
+      "tag": "c:furnaces/silver"
+    },
+    "#": {
+      "tag": "c:glass_blocks/colorless"
+    }
+  },
+  "result": {
+    "id": "ironfurnaces:gold_furnace"
+  },
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:tags_populated",
+      "values": [
+        "c:ingots/silver"
+      ]
+    }
+  ]
+}

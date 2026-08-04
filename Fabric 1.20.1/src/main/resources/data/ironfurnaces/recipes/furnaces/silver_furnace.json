@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#G#",
+    "GXG",
+    "#G#"
+  ],
+  "key": {
+    "#": {
+      "tag": "c:silver_ingots"
+    },
+    "X": {
+      "tag": "forge:furnaces/iron"
+    },
+    "G": {
+      "tag": "c:glass"
+    }
+  },
+  "result": {
+    "item": "ironfurnaces:silver_furnace"
+  },
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:tags_populated",
+      "values": [
+        "c:silver_ingots"
+      ]
+    }
+  ]
+}

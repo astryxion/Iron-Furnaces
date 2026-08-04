@@ -1,0 +1,25 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/allthemodium"
+      }
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "B#B",
+    "#X#",
+    "B#B"
+  ],
+  "key": {
+    "#": "#c:ingots/allthemodium",
+    "B": "#ironfurnaces:allthemodium_corners",
+    "X": "#ironfurnaces:netherite_upgrade_crafting"
+  },
+  "result": {
+    "id": "ironfurnaces:upgrade_allthemodium"
+  }
+}

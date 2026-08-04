@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#S#",
+    "#X#"
+  ],
+  "key": {
+    "#": "#c:ingots/silver",
+    "X": "#c:ingots/copper",
+    "S": "#minecraft:stone_tool_materials"
+  },
+  "result": {
+    "id": "ironfurnaces:upgrade_silver"
+  },
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:tags_populated",
+      "values": [
+        "c:ingots/silver"
+      ]
+    },
+    {
+      "condition": "fabric:tags_populated",
+      "values": [
+        "c:ingots/copper"
+      ]
+    }
+  ]
+}

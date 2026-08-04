@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "B#B",
+    "#X#",
+    "B#B"
+  ],
+  "key": {
+    "#": {
+      "tag": "c:ingots/vibranium"
+    },
+    "B": {
+      "tag": "c:storage_blocks/vibranium"
+    },
+    "X": {
+      "tag": "c:ingots/allthemodium"
+    }
+  },
+  "result": {
+    "id": "ironfurnaces:upgrade_vibranium"
+  },
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "allthemodium"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+	"required": true,
+	"package": "ironfurnaces.mixin",
+	"compatibilityLevel": "JAVA_17",
+	"mixins": [
+		"BlockEntityCapabilityMixin",
+		"EntityCapabilityMixin",
+		"ExplosionMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}
