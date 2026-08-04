@@ -7,8 +7,7 @@
     "ironfurnaces:emerald_furnace",
     "ironfurnaces:obsidian_furnace",
     "ironfurnaces:crystal_furnace",
-    "ironfurnaces:copper_furnace",
-    "ironfurnaces:silver_furnace"
+    "ironfurnaces:copper_furnace"
   ],
   "result": {
     "id": "ironfurnaces:rainbow_plating",
@@ -16,10 +15,11 @@
   },
   "fabric:load_conditions": [
     {
-      "condition": "fabric:tags_populated",
-      "values": [
-        "c:ingots/silver"
-      ]
+      "condition": "fabric:not",
+      "value": {
+        "condition": "fabric:tags_populated",
+        "values": ["c:ingots/silver"]
+      }
     }
   ]
 }

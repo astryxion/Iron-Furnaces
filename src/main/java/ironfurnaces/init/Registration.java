@@ -43,6 +43,8 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -51,6 +53,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
@@ -67,6 +70,19 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import static ironfurnaces.IronFurnaces.MOD_ID;
 
 public class Registration {
+
+    public static final TagKey<Item> SILVER_INGOTS =
+            TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("c", "ingots/silver"));
+
+    public static boolean isSilverContentAvailable(HolderLookup.Provider registries) {
+        return registries.lookupOrThrow(Registries.ITEM).get(SILVER_INGOTS)
+                .map(tag -> tag.size() > 0)
+                .orElse(false);
+    }
+
+    public static boolean isAtmContentAvailable() {
+        return FabricLoader.getInstance().isModLoaded("allthemodium");
+    }
 
     private static Identifier id(String path) {
         return Identifier.fromNamespaceAndPath(MOD_ID, path);
@@ -622,6 +638,9 @@ public class Registration {
                             .icon(() -> IRON_FURNACE.asItem().getDefaultInstance())
                             .title(Component.translatable("itemGroup.ironfurnaces"))
                             .displayItems((parameters, output) -> {
+                                boolean silverAvailable = isSilverContentAvailable(parameters.holders());
+                                boolean atmAvailable = isAtmContentAvailable();
+
                                 output.accept(IRON_FURNACE_ITEM);
                                 output.accept(GOLD_FURNACE_ITEM);
                                 output.accept(DIAMOND_FURNACE_ITEM);
@@ -630,7 +649,14 @@ public class Registration {
                                 output.accept(CRYSTAL_FURNACE_ITEM);
                                 output.accept(NETHERITE_FURNACE_ITEM);
                                 output.accept(COPPER_FURNACE_ITEM);
-                                output.accept(SILVER_FURNACE_ITEM);
+                                if (silverAvailable) {
+                                    output.accept(SILVER_FURNACE_ITEM);
+                                }
+                                if (atmAvailable) {
+                                    output.accept(ALLTHEMODIUM_FURNACE_ITEM);
+                                    output.accept(VIBRANIUM_FURNACE_ITEM);
+                                    output.accept(UNOBTAINIUM_FURNACE_ITEM);
+                                }
 
                                 output.accept(IRON_UPGRADE);
                                 output.accept(GOLD_UPGRADE);
@@ -640,12 +666,21 @@ public class Registration {
                                 output.accept(CRYSTAL_UPGRADE);
                                 output.accept(NETHERITE_UPGRADE);
                                 output.accept(COPPER_UPGRADE);
-                                output.accept(SILVER_UPGRADE);
+                                if (silverAvailable) {
+                                    output.accept(SILVER_UPGRADE);
+                                }
+                                if (atmAvailable) {
+                                    output.accept(ALLTHEMODIUM_UPGRADE);
+                                    output.accept(VIBRANIUM_UPGRADE);
+                                    output.accept(UNOBTAINIUM_UPGRADE);
+                                }
 
                                 output.accept(OBSIDIAN2_UPGRADE);
                                 output.accept(IRON2_UPGRADE);
-                                output.accept(GOLD2_UPGRADE);
-                                output.accept(SILVER2_UPGRADE);
+                                if (silverAvailable) {
+                                    output.accept(GOLD2_UPGRADE);
+                                    output.accept(SILVER2_UPGRADE);
+                                }
                                 output.accept(HEATER_ITEM);
                                 output.accept(ITEM_HEATER);
                                 output.accept(BLASTING_AUGMENT);
