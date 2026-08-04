@@ -16,7 +16,7 @@
       "tag": "c:dusts/redstone"
     },
     "X": {
-       "item": "minecraft:smoker"
+      "item": "minecraft:smoker"
     }
   },
   "result": {

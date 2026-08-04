@@ -25,6 +25,7 @@ import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
+import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.registration.IAdvancedRegistration;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
@@ -68,7 +69,24 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 
 	@Override
 	public void registerRecipes(IRecipeRegistration registration) {
-
+			List<ItemStack> hidden = Lists.newArrayList();
+			if (!Registration.isAtmContentAvailable()) {
+				hidden.add(new ItemStack(Registration.ALLTHEMODIUM_FURNACE_ITEM.get()));
+				hidden.add(new ItemStack(Registration.VIBRANIUM_FURNACE_ITEM.get()));
+				hidden.add(new ItemStack(Registration.UNOBTAINIUM_FURNACE_ITEM.get()));
+				hidden.add(new ItemStack(Registration.ALLTHEMODIUM_UPGRADE.get()));
+				hidden.add(new ItemStack(Registration.VIBRANIUM_UPGRADE.get()));
+				hidden.add(new ItemStack(Registration.UNOBTAINIUM_UPGRADE.get()));
+			}
+			if (!Registration.isSilverContentAvailable()) {
+				hidden.add(new ItemStack(Registration.SILVER_FURNACE_ITEM.get()));
+				hidden.add(new ItemStack(Registration.SILVER_UPGRADE.get()));
+				hidden.add(new ItemStack(Registration.SILVER2_UPGRADE.get()));
+				hidden.add(new ItemStack(Registration.GOLD2_UPGRADE.get()));
+			}
+			if (!hidden.isEmpty()) {
+				registration.getIngredientManager().removeIngredientsAtRuntime(VanillaTypes.ITEM_STACK, hidden);
+			}
 
 			List<SimpleGeneratorRecipe> recipes = Lists.newArrayList();
 			for (Item item : BuiltInRegistries.ITEM.stream().toList())
@@ -124,7 +142,9 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 			registry.addRecipeCatalyst(new ItemStack(Registration.CRYSTAL_FURNACE.get()), RecipeTypes.SMELTING);
 			registry.addRecipeCatalyst(new ItemStack(Registration.NETHERITE_FURNACE.get()), RecipeTypes.SMELTING);
 			registry.addRecipeCatalyst(new ItemStack(Registration.COPPER_FURNACE.get()), RecipeTypes.SMELTING);
-			registry.addRecipeCatalyst(new ItemStack(Registration.SILVER_FURNACE.get()), RecipeTypes.SMELTING);
+			if (Registration.isSilverContentAvailable()) {
+				registry.addRecipeCatalyst(new ItemStack(Registration.SILVER_FURNACE.get()), RecipeTypes.SMELTING);
+			}
 
 
 			registry.addRecipeCatalyst(new ItemStack(Registration.MILLION_FURNACE.get()), RecipeTypes.SMELTING);
@@ -138,7 +158,9 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 			registry.addRecipeCatalyst(new ItemStack(Registration.CRYSTAL_FURNACE.get()), RecipeTypes.FUELING);
 			registry.addRecipeCatalyst(new ItemStack(Registration.NETHERITE_FURNACE.get()), RecipeTypes.FUELING);
 			registry.addRecipeCatalyst(new ItemStack(Registration.COPPER_FURNACE.get()), RecipeTypes.FUELING);
-			registry.addRecipeCatalyst(new ItemStack(Registration.SILVER_FURNACE.get()), RecipeTypes.FUELING);
+			if (Registration.isSilverContentAvailable()) {
+				registry.addRecipeCatalyst(new ItemStack(Registration.SILVER_FURNACE.get()), RecipeTypes.FUELING);
+			}
 
 
 			registry.addRecipeCatalyst(new ItemStack(Registration.MILLION_FURNACE.get()), RecipeTypes.FUELING);

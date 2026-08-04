@@ -10,19 +10,18 @@
       "tag": "c:ingots/copper"
     },
     "X": {
-       "item": "minecraft:furnace"
+      "item": "minecraft:furnace"
     }
   },
   "result": {
     "id": "ironfurnaces:copper_furnace"
   },
-  "neoforge:conditions": [
+  "fabric:load_conditions": [
     {
-      "value": {
-        "type": "neoforge:tag_empty",
-        "tag": "c:ingots/copper"
-      },
-      "type": "neoforge:not"
+      "condition": "fabric:tags_populated",
+      "values": [
+        "c:ingots/copper"
+      ]
     }
   ]
 }

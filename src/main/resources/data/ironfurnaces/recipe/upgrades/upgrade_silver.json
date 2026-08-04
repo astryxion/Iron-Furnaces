@@ -19,20 +19,18 @@
   "result": {
     "id": "ironfurnaces:upgrade_silver"
   },
-  "conditions": [
+  "fabric:load_conditions": [
     {
-      "value": {
-        "type": "neoforge:tag_empty",
-        "tag": "c:ingots/silver"
-      },
-      "type": "neoforge:not"
+      "condition": "fabric:tags_populated",
+      "values": [
+        "c:ingots/silver"
+      ]
     },
     {
-      "value": {
-        "type": "neoforge:tag_empty",
-        "tag": "c:ingots/copper"
-      },
-      "type": "neoforge:not"
+      "condition": "fabric:tags_populated",
+      "values": [
+        "c:ingots/copper"
+      ]
     }
   ]
 }

@@ -10,7 +10,7 @@
       "tag": "c:ingots/iron"
     },
     "X": {
-       "item": "minecraft:furnace"
+      "item": "minecraft:furnace"
     }
   },
   "result": {

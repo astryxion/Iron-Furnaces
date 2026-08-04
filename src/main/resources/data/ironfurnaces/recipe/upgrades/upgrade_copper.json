@@ -16,13 +16,12 @@
   "result": {
     "id": "ironfurnaces:upgrade_copper"
   },
-  "conditions": [
+  "fabric:load_conditions": [
     {
-      "value": {
-        "type": "neoforge:tag_empty",
-        "tag": "c:ingots/copper"
-      },
-      "type": "neoforge:not"
+      "condition": "fabric:tags_populated",
+      "values": [
+        "c:ingots/copper"
+      ]
     }
   ]
 }

@@ -16,7 +16,7 @@
       "tag": "c:dusts/redstone"
     },
     "X": {
-       "item": "minecraft:blast_furnace"
+      "item": "minecraft:blast_furnace"
     }
   },
   "result": {

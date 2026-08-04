@@ -13,7 +13,7 @@
       "tag": "c:dusts/redstone"
     },
     "X": {
-       "item": "minecraft:comparator"
+      "item": "minecraft:comparator"
     }
   },
   "result": {

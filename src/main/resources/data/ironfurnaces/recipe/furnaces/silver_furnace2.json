@@ -16,13 +16,12 @@
   "result": {
     "id": "ironfurnaces:silver_furnace"
   },
-  "neoforge:conditions": [
+  "fabric:load_conditions": [
     {
-      "value": {
-        "type": "neoforge:tag_empty",
-        "tag": "c:ingots/silver"
-      },
-      "type": "neoforge:not"
+      "condition": "fabric:tags_populated",
+      "values": [
+        "c:ingots/silver"
+      ]
     }
   ]
 }
