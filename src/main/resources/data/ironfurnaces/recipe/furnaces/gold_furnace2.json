@@ -1,1 +1,25 @@
-{"type":"minecraft:crafting_shaped","pattern":["###","#X#","#Y#"],"key":{"Y":"#c:storage_blocks/gold","X":"#c:furnaces/silver","#":"#c:glass_blocks/colorless"},"result":{"id":"ironfurnaces:gold_furnace"}}
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#X#",
+    "#Y#"
+  ],
+  "key": {
+    "Y": "#c:storage_blocks/gold",
+    "X": "#c:furnaces/silver",
+    "#": "#c:glass_blocks/colorless"
+  },
+  "result": {
+    "id": "ironfurnaces:gold_furnace"
+  },
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/silver"
+      }
+    }
+  ]
+}

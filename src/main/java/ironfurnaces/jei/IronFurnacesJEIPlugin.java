@@ -25,6 +25,7 @@ import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
+import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.recipe.types.IRecipeType;
 import mezz.jei.api.registration.IAdvancedRegistration;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
@@ -75,10 +76,30 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
+        Level level = Minecraft.getInstance().level;
+        boolean silverAvailable = level != null && Registration.isSilverContentAvailable(level.registryAccess());
+        boolean atmAvailable = level != null && Registration.isAtmContentAvailable(level.registryAccess());
 
+        List<ItemStack> hidden = Lists.newArrayList();
+        if (!atmAvailable) {
+            hidden.add(new ItemStack(Registration.ALLTHEMODIUM_FURNACE_ITEM.get()));
+            hidden.add(new ItemStack(Registration.VIBRANIUM_FURNACE_ITEM.get()));
+            hidden.add(new ItemStack(Registration.UNOBTAINIUM_FURNACE_ITEM.get()));
+            hidden.add(new ItemStack(Registration.ALLTHEMODIUM_UPGRADE.get()));
+            hidden.add(new ItemStack(Registration.VIBRANIUM_UPGRADE.get()));
+            hidden.add(new ItemStack(Registration.UNOBTAINIUM_UPGRADE.get()));
+        }
+        if (!silverAvailable) {
+            hidden.add(new ItemStack(Registration.SILVER_FURNACE_ITEM.get()));
+            hidden.add(new ItemStack(Registration.SILVER_UPGRADE.get()));
+            hidden.add(new ItemStack(Registration.SILVER2_UPGRADE.get()));
+            hidden.add(new ItemStack(Registration.GOLD2_UPGRADE.get()));
+        }
+        if (!hidden.isEmpty()) {
+            registration.getIngredientManager().removeIngredientsAtRuntime(VanillaTypes.ITEM_STACK, hidden);
+        }
 
         List<SimpleGeneratorRecipe> recipes = Lists.newArrayList();
-        Level level = Minecraft.getInstance().level;
         if (level != null) {
             var fuelValues = level.fuelValues();
             for (Item item : BuiltInRegistries.ITEM.stream().toList()) {
@@ -136,17 +157,16 @@ public class IronFurnacesJEIPlugin implements IModPlugin {
         registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.CRYSTAL_FURNACE.get()));
         registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.NETHERITE_FURNACE.get()));
         registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.COPPER_FURNACE.get()));
-        registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.SILVER_FURNACE.get()));
-
+        Level level = Minecraft.getInstance().level;
+        if (level != null && Registration.isSilverContentAvailable(level.registryAccess())) {
+            registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.SILVER_FURNACE.get()));
+        }
 
         registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.MILLION_FURNACE.get()));
 
         registry.addCraftingStation(RecipeTypesJei.GENERATOR_BLASTING, new ItemStack(Registration.BLASTING_AUGMENT.get()));
         registry.addCraftingStation(RecipeTypesJei.GENERATOR_SMOKING, new ItemStack(Registration.SMOKING_AUGMENT.get()));
 
-
-
-        Level level = Minecraft.getInstance().level;
         if (level != null && Registration.isAtmContentAvailable(level.registryAccess())) {
             registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.ALLTHEMODIUM_FURNACE.get()));
             registry.addCraftingStation(RecipeTypes.SMELTING, new ItemStack(Registration.VIBRANIUM_FURNACE.get()));

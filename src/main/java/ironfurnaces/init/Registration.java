@@ -90,6 +90,13 @@ public class Registration {
     //private static final DeferredRegister<ModDimension> DIMENSIONS = new DeferredRegister<>(ForgeRegistries.MOD_DIMENSIONS, MOD_ID);
 
     private static final TagKey<Item> ALLTHEMODIUM_INGOTS = TagKey.create(Registries.ITEM, Identifier.parse("c:ingots/allthemodium"));
+    private static final TagKey<Item> SILVER_INGOTS = TagKey.create(Registries.ITEM, Identifier.parse("c:ingots/silver"));
+
+    public static boolean isSilverContentAvailable(HolderLookup.Provider registries) {
+        return registries.lookupOrThrow(Registries.ITEM).get(SILVER_INGOTS)
+                .map(tag -> tag.size() > 0)
+                .orElse(false);
+    }
 
     public static boolean isAtmContentAvailable(HolderLookup.Provider registries) {
         if (ModList.get().isLoaded("allthemodium")) {
@@ -322,6 +329,8 @@ public class Registration {
             .icon(() -> IRON_FURNACE.get().asItem().getDefaultInstance())
             .title(Component.translatable("itemGroup.ironfurnaces"))
             .displayItems((parameters, output) -> {
+                boolean silverAvailable = isSilverContentAvailable(parameters.holders());
+                boolean atmAvailable = isAtmContentAvailable(parameters.holders());
 
                 output.accept(ironfurnaces.init.Registration.IRON_FURNACE_ITEM.get());
                 output.accept(ironfurnaces.init.Registration.GOLD_FURNACE_ITEM.get());
@@ -331,9 +340,11 @@ public class Registration {
                 output.accept(ironfurnaces.init.Registration.CRYSTAL_FURNACE_ITEM.get());
                 output.accept(ironfurnaces.init.Registration.NETHERITE_FURNACE_ITEM.get());
                 output.accept(ironfurnaces.init.Registration.COPPER_FURNACE_ITEM.get());
-                output.accept(ironfurnaces.init.Registration.SILVER_FURNACE_ITEM.get());
+                if (silverAvailable) {
+                    output.accept(ironfurnaces.init.Registration.SILVER_FURNACE_ITEM.get());
+                }
 
-                if (isAtmContentAvailable(parameters.holders())) {
+                if (atmAvailable) {
                     output.accept(ironfurnaces.init.Registration.ALLTHEMODIUM_FURNACE_ITEM.get());
                     output.accept(ironfurnaces.init.Registration.VIBRANIUM_FURNACE_ITEM.get());
                     output.accept(ironfurnaces.init.Registration.UNOBTAINIUM_FURNACE_ITEM.get());
@@ -347,9 +358,11 @@ public class Registration {
                 output.accept(ironfurnaces.init.Registration.CRYSTAL_UPGRADE.get());
                 output.accept(ironfurnaces.init.Registration.NETHERITE_UPGRADE.get());
                 output.accept(ironfurnaces.init.Registration.COPPER_UPGRADE.get());
-                output.accept(ironfurnaces.init.Registration.SILVER_UPGRADE.get());
+                if (silverAvailable) {
+                    output.accept(ironfurnaces.init.Registration.SILVER_UPGRADE.get());
+                }
 
-                if (isAtmContentAvailable(parameters.holders())) {
+                if (atmAvailable) {
                     output.accept(ironfurnaces.init.Registration.ALLTHEMODIUM_UPGRADE.get());
                     output.accept(ironfurnaces.init.Registration.VIBRANIUM_UPGRADE.get());
                     output.accept(ironfurnaces.init.Registration.UNOBTAINIUM_UPGRADE.get());
@@ -357,8 +370,10 @@ public class Registration {
 
                 output.accept(ironfurnaces.init.Registration.OBSIDIAN2_UPGRADE.get());
                 output.accept(ironfurnaces.init.Registration.IRON2_UPGRADE.get());
-                output.accept(ironfurnaces.init.Registration.GOLD2_UPGRADE.get());
-                output.accept(ironfurnaces.init.Registration.SILVER2_UPGRADE.get());
+                if (silverAvailable) {
+                    output.accept(ironfurnaces.init.Registration.GOLD2_UPGRADE.get());
+                    output.accept(ironfurnaces.init.Registration.SILVER2_UPGRADE.get());
+                }
                 output.accept(ironfurnaces.init.Registration.HEATER_ITEM.get());
                 output.accept(ironfurnaces.init.Registration.ITEM_HEATER.get());
                 output.accept(ironfurnaces.init.Registration.BLASTING_AUGMENT.get());
