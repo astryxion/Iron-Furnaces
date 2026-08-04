@@ -38,6 +38,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -72,13 +73,18 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 
@@ -97,6 +103,8 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
     public static final int AUGMENT_BLUE = 5;
     public static final int GENERATOR_FUEL = 6;
     public static final int[] FACTORY_INPUT = new int[]{7, 8, 9, 10, 11, 12};
+    public static final int FLUID_TANK_CAPACITY = FluidType.BUCKET_VOLUME * 5;
+    private static final Identifier SOUL_LAVA_ID = Identifier.fromNamespaceAndPath("allthemodium", "soul_lava");
     //public Player savedPlayer;
 
     public final int[] provides = new int[Direction.values().length];
@@ -143,6 +151,18 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
 
 
 
+        }
+    };
+
+    private final FluidStacksResourceHandler fluidStorage = new FluidStacksResourceHandler(1, FLUID_TANK_CAPACITY) {
+        @Override
+        public boolean isValid(int index, FluidResource resource) {
+            return isGenerator() && isAllowedGeneratorFluid(resource);
+        }
+
+        @Override
+        protected void onContentsChanged(int index, net.neoforged.neoforge.fluids.FluidStack previousContents) {
+            setChanged();
         }
     };
 
@@ -501,6 +521,57 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
             burn *= 2;
         }
         return burn;
+    }
+
+    public ResourceHandler<FluidResource> getFluidStorage() {
+        return fluidStorage;
+    }
+
+    public boolean isAllowedGeneratorFluid(FluidResource resource) {
+        if (resource.equals(FluidResource.of(Fluids.LAVA))) {
+            return true;
+        }
+        Fluid soulLava = BuiltInRegistries.FLUID.getOptional(SOUL_LAVA_ID).orElse(null);
+        return soulLava != null && resource.equals(FluidResource.of(soulLava));
+    }
+
+    public int getFluidGeneratorBurn() {
+        if (getItem(AUGMENT_RED).getItem() instanceof ItemAugmentSmoking || getItem(AUGMENT_RED).getItem() instanceof ItemAugmentBlasting) {
+            return 0;
+        }
+
+        FluidResource fluid = fluidStorage.getResource(0);
+        if (!isAllowedGeneratorFluid(fluid)) {
+            return 0;
+        }
+        if (fluidStorage.getAmountAsLong(0) < FluidType.BUCKET_VOLUME) {
+            return 0;
+        }
+
+        int lavaBurn = getBurnTime(new ItemStack(Items.LAVA_BUCKET), RecipeType.SMELTING);
+        int burn = fluid.equals(FluidResource.of(Fluids.LAVA)) ? lavaBurn : lavaBurn * 6;
+
+        if (getItem(AUGMENT_GREEN).getItem() instanceof ItemAugmentSpeed) {
+            burn /= 2;
+        } else if (getItem(AUGMENT_GREEN).getItem() instanceof ItemAugmentFuel) {
+            burn *= 2;
+        }
+        return burn;
+    }
+
+    public boolean consumeFluidGeneratorFuel() {
+        FluidResource fluid = fluidStorage.getResource(0);
+        if (!isAllowedGeneratorFluid(fluid)) {
+            return false;
+        }
+        try (Transaction tx = Transaction.openRoot()) {
+            int extracted = fluidStorage.extract(fluid, FluidType.BUCKET_VOLUME, tx);
+            if (extracted == FluidType.BUCKET_VOLUME) {
+                tx.commit();
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean isItemGeneratorFuel(ItemStack stack) {
@@ -1007,8 +1078,8 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                     e.energyStorage.setMaxExtract(e.energyStorage.getCapacity());
                 }
                 if (e.getEnergy() < e.getCapacity()) {
-                    if (!e.getItem(GENERATOR_FUEL).isEmpty() && e.generatorBurn <= 0) {
-                        if (e.getGeneratorBurn() > 0)
+                    if (e.generatorBurn <= 0) {
+                        if (!e.getItem(GENERATOR_FUEL).isEmpty() && e.getGeneratorBurn() > 0)
                         {
                             e.generatorBurn = e.getGeneratorBurn();
                             e.generatorRecentRecipeRF = (int) e.generatorBurn;
@@ -1021,6 +1092,12 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
                                     ItemStackTemplate genRem2 = e.getItem(GENERATOR_FUEL).getCraftingRemainder();
                                     e.setItem(GENERATOR_FUEL, genRem2 != null ? genRem2.create() : ItemStack.EMPTY);
                                 }
+                            }
+                        } else if (e.getItem(GENERATOR_FUEL).isEmpty()) {
+                            int fluidBurn = e.getFluidGeneratorBurn();
+                            if (fluidBurn > 0 && e.consumeFluidGeneratorFuel()) {
+                                e.generatorBurn = fluidBurn;
+                                e.generatorRecentRecipeRF = fluidBurn;
                             }
                         }
 
@@ -1930,6 +2007,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
         generatorBurn = input.getDoubleOr("GeneratorBurn", generatorBurn);
         generatorRecentRecipeRF = input.getIntOr("GeneratorRecent", generatorRecentRecipeRF);
         gottenRF = input.getDoubleOr("GottenRF", gottenRF);
+        fluidStorage.deserialize(input.childOrEmpty("LiquidFuelTank"));
 
         furnaceBurnTime = input.getIntOr("BurnTime", furnaceBurnTime);
         cookTime = input.getIntOr("CookTime", cookTime);
@@ -1964,6 +2042,7 @@ public abstract class BlockIronFurnaceTileBase extends TileEntityInventory imple
         output.putDouble("GeneratorBurn", generatorBurn);
         output.putInt("GeneratorRecent", generatorRecentRecipeRF);
         output.putDouble("GottenRF", gottenRF);
+        fluidStorage.serialize(output.child("LiquidFuelTank"));
 
         output.putInt("BurnTime", furnaceBurnTime);
         output.putInt("CookTime", cookTime);

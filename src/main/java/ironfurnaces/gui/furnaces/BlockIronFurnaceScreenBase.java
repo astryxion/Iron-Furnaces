@@ -87,6 +87,13 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
 
     private int timer;
     private Random rand = new Random();
+    private static final int TANK_X = 33;
+    private static final int TANK_Y = 22;
+    private static final int TANK_W = 10;
+    private static final int TANK_H = 42;
+    private static final int TANK_LEVELS = 5;
+    private static final Identifier LAVA_TEXTURE = Identifier.fromNamespaceAndPath("minecraft", "textures/block/lava_still.png");
+    private static final Identifier SOUL_LAVA_TEXTURE = Identifier.fromNamespaceAndPath("allthemodium", "textures/block/soul_lava_still.png");
 
     public BlockIronFurnaceScreenBase(T t, Inventory inv, Component name) {
         super(t, inv, name);
@@ -188,6 +195,7 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
         energyBar.changePos(9, 7, getMenu().getIsFactory() && !getMenu().getAugmentGUI());
         energyBar.renderTooltip(font, graphics, tooltipX, tooltipY, mouseX, mouseY, getMenu().getEnergy(), getMenu().getMaxEnergy(), getMenu().getIsGenerator() && !getMenu().getAugmentGUI());
         energyBar.renderTooltip(font, graphics, tooltipX, tooltipY, mouseX, mouseY, getMenu().getEnergy(), getMenu().getMaxEnergy(), getMenu().getIsFactory() && !getMenu().getAugmentGUI());
+        addGeneratorTankTooltip(graphics, tooltipX, tooltipY, mouseX, mouseY);
         List<Component> tl = Lists.newArrayList(Component.literal("Auto Split"), Component.literal("ON"));
         autoSplitButton.renderComponentTooltip(font, graphics, tl, tooltipX, tooltipY, mouseX, mouseY, getMenu().isAutoSplit() && getMenu().getIsFactory() && !getMenu().getAugmentGUI());
         tl = Lists.newArrayList(Component.literal("Auto Split"), Component.literal("OFF"));
@@ -302,6 +310,74 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
         }
     }
 
+    private void renderGeneratorTank(GuiGraphicsExtractor matrix) {
+        int amountMb = getMenu().getFluidAmountMb();
+        int capMb = Math.max(1, getMenu().getFluidCapacityMb());
+        int scaled = Math.max(0, Math.min(TANK_H, amountMb * TANK_H / capMb));
+        int x0 = getGuiLeft() + TANK_X;
+        int y0 = getGuiTop() + TANK_Y;
+
+        matrix.fill(x0 - 1, y0 - 1, x0 + TANK_W + 1, y0 + TANK_H + 1, 0xFF3A3A3A);
+        matrix.fill(x0, y0, x0 + TANK_W, y0 + TANK_H, 0xFF121212);
+        if (scaled > 0) {
+            drawFluidTexture(matrix, getMenu().getFluidType(), x0, y0 + TANK_H - scaled, TANK_W, scaled);
+        }
+        for (int level = 1; level < TANK_LEVELS; level++) {
+            int lineY = y0 + (TANK_H * level) / TANK_LEVELS;
+            matrix.fill(x0, lineY, x0 + TANK_W, lineY + 1, 0x55222222);
+        }
+    }
+
+    private void drawFluidTexture(GuiGraphicsExtractor graphics, int fluidType, int x, int y, int width, int height) {
+        Identifier texture = getFluidTexture(fluidType);
+        if (texture == null) {
+            graphics.fill(x, y, x + width, y + height, 0xFF777777);
+            return;
+        }
+        graphics.enableScissor(x, y, x + width, y + height);
+        for (int yy = y; yy < y + height; yy += 16) {
+            for (int xx = x; xx < x + width; xx += 16) {
+                graphics.blit(RenderPipelines.GUI_TEXTURED, texture, xx, yy, 0, 0, 16, 16, 16, 16);
+            }
+        }
+        graphics.disableScissor();
+    }
+
+    private Identifier getFluidTexture(int fluidType) {
+        if (fluidType == 1) {
+            return LAVA_TEXTURE;
+        }
+        if (fluidType == 2) {
+            return SOUL_LAVA_TEXTURE;
+        }
+        return null;
+    }
+
+    private void addGeneratorTankTooltip(GuiGraphicsExtractor graphics, int tooltipX, int tooltipY, int mouseX, int mouseY) {
+        if (!getMenu().getIsGenerator() || getMenu().getAugmentGUI()) {
+            return;
+        }
+        if (mouseX < TANK_X || mouseX > TANK_X + TANK_W || mouseY < TANK_Y || mouseY > TANK_Y + TANK_H) {
+            return;
+        }
+
+        int amountMb = getMenu().getFluidAmountMb();
+        int capMb = Math.max(1, getMenu().getFluidCapacityMb());
+        Component fluidName;
+        if (getMenu().getFluidType() == 1) {
+            fluidName = Component.translatable("block.minecraft.lava").withStyle(ChatFormatting.GOLD);
+        } else if (getMenu().getFluidType() == 2) {
+            fluidName = Component.translatable("block.allthemodium.soul_lava").withStyle(ChatFormatting.AQUA);
+        } else {
+            fluidName = Component.literal("Empty").withStyle(ChatFormatting.DARK_GRAY);
+        }
+        graphics.setComponentTooltipForNextFrame(font, List.of(
+                Component.literal("Liquid Fuel").withStyle(ChatFormatting.GRAY),
+                fluidName,
+                Component.literal(amountMb + " / " + capMb + " mB").withStyle(ChatFormatting.YELLOW)
+        ), tooltipX, tooltipY);
+    }
+
     protected void renderFactoryBg(GuiGraphicsExtractor matrix)
     {
         if (getMenu().getIsFactory() && !getMenu().getAugmentGUI())
@@ -333,6 +409,9 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
         this.addFactoryButtons(matrix, actualMouseX, actualMouseY);
         this.addInventoryButtons(matrix, actualMouseX, actualMouseY);
         this.addRedstoneButtons(matrix, actualMouseX, actualMouseY);
+        if (getMenu().getIsGenerator() && !getMenu().getAugmentGUI()) {
+            renderGeneratorTank(matrix);
+        }
     }
 
     protected void addSlots(GuiGraphicsExtractor matrix, int amount)
