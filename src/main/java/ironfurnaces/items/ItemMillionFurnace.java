@@ -58,7 +58,7 @@ public class ItemMillionFurnace extends BlockItem {
             String name = Component.translatable("block.ironfurnaces.million_furnace").getString();
             ArrayList<Component> names = Lists.newArrayList();
             for (int i = 0; i < name.length(); i++) {
-                names.add((Component) Component.literal("" + name.charAt(i)).withStyle(ChatFormatting.getById(getIDRandom(rand.nextInt(6)))));
+                names.add((Component) Component.literal("" + name.charAt(i)).withStyle(getRandomFormatting(rand.nextInt(6))));
             }
             MutableComponent component = Component.literal("");
             for (int i = 0; i < names.size(); i++) {
@@ -89,27 +89,17 @@ public class ItemMillionFurnace extends BlockItem {
     }
 
 
-    public static int getIDRandom(int id)
-    {
-        switch (id)
-        {
-            case 0:
-                return 12;
-            case 1:
-                return 14;
-            case 2:
-                return 10;
-            case 3:
-                return 11;
-            case 4:
-                return 9;
-            case 5:
-                return 13;
-            case 6:
-                return 5;
-            default:
-                return 0;
-        }
+    public static ChatFormatting getRandomFormatting(int id) {
+        return switch (id) {
+            case 0 -> ChatFormatting.RED;
+            case 1 -> ChatFormatting.YELLOW;
+            case 2 -> ChatFormatting.GREEN;
+            case 3 -> ChatFormatting.AQUA;
+            case 4 -> ChatFormatting.BLUE;
+            case 5 -> ChatFormatting.LIGHT_PURPLE;
+            case 6 -> ChatFormatting.DARK_PURPLE;
+            default -> ChatFormatting.BLACK;
+        };
     }
 
 }

@@ -157,7 +157,7 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
                 String name = this.name.getString();
                 ArrayList<Component> names = Lists.newArrayList();
                 for (int i = 0; i < name.length(); i++) {
-                    names.add((Component) Component.literal("" + name.charAt(i)).withStyle(ChatFormatting.getById(ItemMillionFurnace.getIDRandom(rand.nextInt(6)))));
+                    names.add((Component) Component.literal("" + name.charAt(i)).withStyle(ItemMillionFurnace.getRandomFormatting(rand.nextInt(6))));
                 }
                 MutableComponent component = Component.literal("");
                 for (int i = 0; i < names.size(); i++) {

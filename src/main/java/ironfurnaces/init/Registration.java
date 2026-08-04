@@ -222,7 +222,7 @@ public class Registration {
 
 
 
-    public static final DeferredBlock<BlockCopperFurnace> COPPER_FURNACE = BLOCKS.registerBlock(BlockCopperFurnace.COPPER_FURNACE, BlockCopperFurnace::new, () -> Block.Properties.ofFullCopy(Blocks.COPPER_BLOCK));
+    public static final DeferredBlock<BlockCopperFurnace> COPPER_FURNACE = BLOCKS.registerBlock(BlockCopperFurnace.COPPER_FURNACE, BlockCopperFurnace::new, () -> Block.Properties.ofFullCopy(Blocks.COPPER_BLOCK.weathering().unaffected()));
     public static final DeferredItem<ItemFurnace> COPPER_FURNACE_ITEM = ITEMS.registerItem(BlockCopperFurnace.COPPER_FURNACE, props -> new ItemFurnace(COPPER_FURNACE.value(), props), () -> new Item.Properties());
     public static final Supplier<BlockEntityType<BlockCopperFurnaceTile>> COPPER_FURNACE_TILE = TILES.register(BlockCopperFurnace.COPPER_FURNACE, () -> new BlockEntityType<>(BlockCopperFurnaceTile::new, COPPER_FURNACE.value()));
 
@@ -231,7 +231,7 @@ public class Registration {
 
 
 
-    public static final DeferredBlock<BlockSilverFurnace> SILVER_FURNACE = BLOCKS.registerBlock(BlockSilverFurnace.SILVER_FURNACE, BlockSilverFurnace::new, () -> Block.Properties.ofFullCopy(Blocks.COPPER_BLOCK));
+    public static final DeferredBlock<BlockSilverFurnace> SILVER_FURNACE = BLOCKS.registerBlock(BlockSilverFurnace.SILVER_FURNACE, BlockSilverFurnace::new, () -> Block.Properties.ofFullCopy(Blocks.COPPER_BLOCK.weathering().unaffected()));
     public static final DeferredItem<ItemFurnace> SILVER_FURNACE_ITEM = ITEMS.registerItem(BlockSilverFurnace.SILVER_FURNACE, props -> new ItemFurnace(SILVER_FURNACE.value(), props), () -> new Item.Properties());
     public static final Supplier<BlockEntityType<BlockSilverFurnaceTile>> SILVER_FURNACE_TILE = TILES.register(BlockSilverFurnace.SILVER_FURNACE, () -> new BlockEntityType<>(BlockSilverFurnaceTile::new, SILVER_FURNACE.value()));
 
