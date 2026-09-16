@@ -16,21 +16,18 @@
 
 package ironfurnaces.capability;
 
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
-import net.neoforged.neoforge.common.util.ValueIOSerializable;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-public class PlayerShowConfigProvider implements ValueIOSerializable {
+public class PlayerShowConfigProvider {
+
+    public static final Codec<PlayerShowConfigProvider> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.INT.fieldOf("config").forGetter(p -> p.config)
+    ).apply(instance, cfg -> {
+        PlayerShowConfigProvider provider = new PlayerShowConfigProvider();
+        provider.config = cfg;
+        return provider;
+    }));
 
     public int config = 0;
-
-    @Override
-    public void serialize(ValueOutput output) {
-        output.putInt("show", config);
-    }
-
-    @Override
-    public void deserialize(ValueInput input) {
-        config = input.getIntOr("show", 0);
-    }
 }

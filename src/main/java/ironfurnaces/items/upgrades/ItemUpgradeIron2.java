@@ -22,6 +22,6 @@ public class ItemUpgradeIron2 extends ItemUpgrade {
 
 
     public ItemUpgradeIron2(Properties properties) {
-        super(properties, ironfurnaces.init.Registration.COPPER_FURNACE.get(), ironfurnaces.init.Registration.IRON_FURNACE.get());
+        super(properties, ironfurnaces.init.Registration.COPPER_FURNACE, ironfurnaces.init.Registration.IRON_FURNACE);
     }
 }

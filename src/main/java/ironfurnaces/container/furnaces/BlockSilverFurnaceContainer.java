@@ -16,9 +16,9 @@
 
 package ironfurnaces.container.furnaces;
 
+import ironfurnaces.container.ClientMenuOpenPos;
 import ironfurnaces.init.Registration;
 import ironfurnaces.tileentity.furnaces.BlockSilverFurnaceTile;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -26,8 +26,12 @@ import net.minecraft.world.level.Level;
 
 public class BlockSilverFurnaceContainer extends BlockIronFurnaceContainerBase {
 
+    public BlockSilverFurnaceContainer(int syncId, Inventory inv) {
+        this(syncId, inv.player.level(), ClientMenuOpenPos.forInventory(inv), inv, inv.player);
+    }
+
     public BlockSilverFurnaceContainer(int windowId, Level world, BlockPos pos, Inventory playerInventory, Player player) {
-        super(ironfurnaces.init.Registration.SILVER_FURNACE_CONTAINER.get(), windowId, world, pos, playerInventory, player);
+        super(ironfurnaces.init.Registration.SILVER_FURNACE_CONTAINER, windowId, world, pos, playerInventory, player);
         this.te = (BlockSilverFurnaceTile) world.getBlockEntity(pos);
     }
 

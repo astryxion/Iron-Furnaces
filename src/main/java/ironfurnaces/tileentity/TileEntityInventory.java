@@ -22,7 +22,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -42,7 +41,7 @@ import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class TileEntityInventory extends BlockEntity implements ITileInventory, WorldlyContainer, MenuProvider, Nameable {
 
@@ -62,15 +61,6 @@ public abstract class TileEntityInventory extends BlockEntity implements ITileIn
         TagValueOutput output = TagValueOutput.createWithContext(reporter, provider);
         saveAdditional(output);
         return output.buildResult();
-    }
-
-    @Override
-    public void onDataPacket(Connection connection, ValueInput valueInput) {
-        loadAdditional(valueInput);
-        setChanged();
-        if (level != null) {
-            level.markAndNotifyBlock(worldPosition, level.getChunkAt(worldPosition), level.getBlockState(worldPosition).getBlock().defaultBlockState(), level.getBlockState(worldPosition), 2, 3);
-        }
     }
 
     @Nullable

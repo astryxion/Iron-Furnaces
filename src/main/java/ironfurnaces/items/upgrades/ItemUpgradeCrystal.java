@@ -22,6 +22,6 @@ public class ItemUpgradeCrystal extends ItemUpgrade {
 
 
     public ItemUpgradeCrystal(Properties properties) {
-        super(properties, ironfurnaces.init.Registration.DIAMOND_FURNACE.get(), ironfurnaces.init.Registration.CRYSTAL_FURNACE.get());
+        super(properties, ironfurnaces.init.Registration.DIAMOND_FURNACE, ironfurnaces.init.Registration.CRYSTAL_FURNACE);
     }
 }

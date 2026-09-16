@@ -16,39 +16,94 @@
 
 package ironfurnaces.energy;
 
-import net.neoforged.neoforge.transfer.energy.SimpleEnergyHandler;
+/**
+ * Same role as NeoForge {@code SimpleEnergyHandler} for this mod: integer RF-style storage with
+ * separate receive/extract caps. No third-party energy API — other mods do not attach automatically.
+ */
+public class FEnergyStorage {
 
-public class FEnergyStorage extends SimpleEnergyHandler {
+    protected long energy;
+    protected long capacity;
+    protected long maxInsert;
+    protected long maxExtract;
 
     public FEnergyStorage(int capacity) {
-        super(capacity);
+        this(capacity, capacity, capacity, 0);
     }
 
     public FEnergyStorage(int capacity, int maxTransfer) {
-        super(capacity, maxTransfer);
+        this(capacity, maxTransfer, maxTransfer, 0);
     }
 
     public FEnergyStorage(int capacity, int maxReceive, int maxExtract) {
-        super(capacity, maxReceive, maxExtract);
+        this(capacity, maxReceive, maxExtract, 0);
     }
 
     public FEnergyStorage(int capacity, int maxReceive, int maxExtract, int energy) {
-        super(capacity, maxReceive, maxExtract, energy);
+        if (capacity < 0 || maxReceive < 0 || maxExtract < 0 || energy < 0) {
+            throw new IllegalArgumentException("Energy storage amounts must be non-negative");
+        }
+        this.capacity = capacity;
+        this.maxInsert = maxReceive;
+        this.maxExtract = maxExtract;
+        this.energy = Math.min(energy, capacity);
     }
 
     protected void onEnergyChanged(int previousAmount) {
     }
 
-    public int getEnergy() {
-        return this.getAmountAsInt();
+    /**
+     * @return amount actually inserted (Forge / Neo-style)
+     */
+    public int receiveEnergy(int maxReceive, boolean simulate) {
+        if (maxInsert <= 0 || maxReceive <= 0) {
+            return 0;
+        }
+        long space = capacity - energy;
+        if (space <= 0) {
+            return 0;
+        }
+        long toReceive = Math.min(maxReceive, Math.min(maxInsert, space));
+        if (toReceive <= 0) {
+            return 0;
+        }
+        if (!simulate) {
+            int prev = getEnergy();
+            energy += toReceive;
+            onEnergyChanged(prev);
+        }
+        return (int) Math.min(Integer.MAX_VALUE, toReceive);
     }
 
-    public int getCapacity() {
-        return this.getCapacityAsInt();
+    /**
+     * @return amount actually extracted
+     */
+    public int extractEnergy(int maxExtract, boolean simulate) {
+        if (this.maxExtract <= 0 || maxExtract <= 0) {
+            return 0;
+        }
+        long toExtract = Math.min(maxExtract, Math.min(this.maxExtract, energy));
+        if (toExtract <= 0) {
+            return 0;
+        }
+        if (!simulate) {
+            int prev = getEnergy();
+            energy -= toExtract;
+            onEnergyChanged(prev);
+        }
+        return (int) Math.min(Integer.MAX_VALUE, toExtract);
+    }
+
+    public int getEnergy() {
+        return (int) Math.min(Integer.MAX_VALUE, energy);
+    }
+
+    public int getCapacityAsInt() {
+        return (int) Math.min(Integer.MAX_VALUE, capacity);
     }
 
     public FEnergyStorage setCapacity(int capacity) {
-        int previous = this.energy;
+        int previous = getEnergy();
         this.capacity = capacity;
         if (energy > capacity) {
             energy = capacity;
@@ -74,20 +129,17 @@ public class FEnergyStorage extends SimpleEnergyHandler {
     }
 
     public int getMaxReceive() {
-        return maxInsert;
+        return (int) Math.min(Integer.MAX_VALUE, maxInsert);
     }
 
     public int getMaxExtract() {
-        return maxExtract;
+        return (int) Math.min(Integer.MAX_VALUE, maxExtract);
     }
 
     public void setEnergy(int energy) {
-        if (energy > capacity) {
-            energy = capacity;
-        } else if (energy < 0) {
-            energy = 0;
-        }
-        set(energy);
+        int previous = getEnergy();
+        this.energy = Math.min(Math.max(energy, 0L), capacity);
+        onEnergyChanged(previous);
     }
 
     public void setCapacityDirectly(int capacity) {

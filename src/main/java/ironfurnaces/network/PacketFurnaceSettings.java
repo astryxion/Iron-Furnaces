@@ -19,6 +19,7 @@ package ironfurnaces.network;
 
 import ironfurnaces.IronFurnaces;
 import ironfurnaces.tileentity.furnaces.BlockIronFurnaceTileBase;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -26,7 +27,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraft.world.level.block.Block;
 
 
 public record PacketFurnaceSettings(int x, int y, int z, int index, int set) implements CustomPacketPayload {
@@ -34,8 +35,6 @@ public record PacketFurnaceSettings(int x, int y, int z, int index, int set) imp
 
     public static final Identifier ID = Identifier.fromNamespaceAndPath(IronFurnaces.MOD_ID, "furnace_settings_packet");
     public static final CustomPacketPayload.Type<PacketFurnaceSettings> TYPE = new Type<>(ID);
-
-
 
 
     public static final StreamCodec<RegistryFriendlyByteBuf, PacketFurnaceSettings> CODEC = StreamCodec.composite(
@@ -47,7 +46,6 @@ public record PacketFurnaceSettings(int x, int y, int z, int index, int set) imp
             PacketFurnaceSettings::new);
 
 
-
     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
@@ -57,18 +55,17 @@ public record PacketFurnaceSettings(int x, int y, int z, int index, int set) imp
         return new PacketFurnaceSettings(x, y, z, index, set);
     }
 
-    public void handle(IPayloadContext ctx) {
-        ctx.enqueueWork(() -> {
-
-            Player player = ctx.player();
-            BlockPos pos = new BlockPos(x, y, z);
-            BlockIronFurnaceTileBase te = (BlockIronFurnaceTileBase) player.level().getBlockEntity(pos);
-            if (player.level().isLoaded(pos)) {
-                te.furnaceSettings.set(index, set);
-                te.getLevel().markAndNotifyBlock(pos, player.level().getChunkAt(pos), te.getLevel().getBlockState(pos).getBlock().defaultBlockState(), te.getLevel().getBlockState(pos), 2, 0);
-                te.setChanged();
-            }
-
-        });
+    public void handle(ServerPlayNetworking.Context ctx) {
+        Player player = ctx.player();
+        BlockPos pos = new BlockPos(x, y, z);
+        BlockIronFurnaceTileBase te = (BlockIronFurnaceTileBase) player.level().getBlockEntity(pos);
+        if (player.level().isLoaded(pos) && te != null) {
+            te.furnaceSettings.set(index, set);
+            BlockPos p = pos;
+            var lvl = te.getLevel();
+            var st = lvl.getBlockState(p);
+            lvl.sendBlockUpdated(p, st, st, Block.UPDATE_CLIENTS);
+            te.setChanged();
+        }
     }
 }

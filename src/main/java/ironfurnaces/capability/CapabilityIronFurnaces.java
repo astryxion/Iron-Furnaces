@@ -16,12 +16,11 @@
 
 package ironfurnaces.capability;
 
-import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+/**
+ * Legacy entry point; item and energy I/O is registered in {@link ironfurnaces.IronFurnaces#onInitialize()}.
+ */
+public final class CapabilityIronFurnaces {
 
-public class CapabilityIronFurnaces {
-
-    public static void register(RegisterCapabilitiesEvent event) {
-        // Item and energy capabilities for furnace and heater blocks are registered in IronFurnaces.registerCapabilities.
+    private CapabilityIronFurnaces() {
     }
-
 }

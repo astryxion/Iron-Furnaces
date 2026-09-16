@@ -22,6 +22,6 @@ public class ItemUpgradeVibranium extends ItemUpgrade {
 
 
     public ItemUpgradeVibranium(Properties properties) {
-        super(properties, ironfurnaces.init.Registration.ALLTHEMODIUM_FURNACE.get(), ironfurnaces.init.Registration.VIBRANIUM_FURNACE.get());
+        super(properties, ironfurnaces.init.Registration.ALLTHEMODIUM_FURNACE, ironfurnaces.init.Registration.VIBRANIUM_FURNACE);
     }
 }

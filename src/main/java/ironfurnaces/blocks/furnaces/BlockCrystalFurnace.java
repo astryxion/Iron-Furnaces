@@ -35,7 +35,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class BlockCrystalFurnace extends BlockIronFurnaceBase implements SimpleWaterloggedBlock {
 
@@ -50,7 +50,7 @@ public class BlockCrystalFurnace extends BlockIronFurnaceBase implements SimpleW
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return createFurnaceTicker(level, type, ironfurnaces.init.Registration.CRYSTAL_FURNACE_TILE.get());
+        return createFurnaceTicker(level, type, ironfurnaces.init.Registration.CRYSTAL_FURNACE_TILE);
     }
 
     @Override

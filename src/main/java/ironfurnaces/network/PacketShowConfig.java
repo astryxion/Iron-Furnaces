@@ -17,6 +17,7 @@
 package ironfurnaces.network;
 
 import ironfurnaces.IronFurnaces;
+import ironfurnaces.capability.PlayerShowConfigProvider;
 import ironfurnaces.init.Registration;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -24,7 +25,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 public record PacketShowConfig(int set) implements CustomPacketPayload {
 
@@ -52,12 +53,10 @@ public record PacketShowConfig(int set) implements CustomPacketPayload {
         return new PacketShowConfig(set);
     }
 
-    public void handle(IPayloadContext ctx) {
-        ctx.enqueueWork(() -> {
-            // Here we are server side
-            Player player = ctx.player();
-            player.getData(ironfurnaces.init.Registration.PLAYER_SHOW_CONFIG).config = set;
-        });
+    public void handle(net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.Context ctx) {
+        Player player = ctx.player();
+        PlayerShowConfigProvider data = player.getAttachedOrCreate(Registration.PLAYER_SHOW_CONFIG, PlayerShowConfigProvider::new);
+        data.config = set;
     }
 
 

@@ -24,15 +24,13 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.common.ModConfigSpec;
-
 public class BlockDiamondFurnaceTile extends BlockIronFurnaceTileBase {
     public BlockDiamondFurnaceTile(BlockPos pos, BlockState state) {
-        super(ironfurnaces.init.Registration.DIAMOND_FURNACE_TILE.get(), pos, state);
+        super(ironfurnaces.init.Registration.DIAMOND_FURNACE_TILE, pos, state);
     }
 
     @Override
-    public ModConfigSpec.IntValue getCookTimeConfig() {
+    public Config.IntValue getCookTimeConfig() {
         return Config.diamondFurnaceSpeed;
     }
 

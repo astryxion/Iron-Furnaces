@@ -22,6 +22,6 @@ public class ItemUpgradeGold extends ItemUpgrade {
 
 
     public ItemUpgradeGold(Properties properties) {
-        super(properties, ironfurnaces.init.Registration.IRON_FURNACE.get(), ironfurnaces.init.Registration.GOLD_FURNACE.get());
+        super(properties, ironfurnaces.init.Registration.IRON_FURNACE, ironfurnaces.init.Registration.GOLD_FURNACE);
     }
 }

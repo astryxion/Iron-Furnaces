@@ -46,55 +46,55 @@ public class ItemFurnace extends BlockItem {
     protected static int getCooktime(ItemStack stack)
     {
         Item item = stack.getItem();
-        if (item == ironfurnaces.init.Registration.MILLION_FURNACE_ITEM.get())
+        if (item == ironfurnaces.init.Registration.MILLION_FURNACE_ITEM)
         {
             return Config.millionFurnaceSpeed.get();
         }
-        if (item == ironfurnaces.init.Registration.ALLTHEMODIUM_FURNACE_ITEM.get())
+        if (item == ironfurnaces.init.Registration.ALLTHEMODIUM_FURNACE_ITEM)
         {
             return Config.allthemodiumFurnaceSpeed.get();
         }
-        if (item == ironfurnaces.init.Registration.VIBRANIUM_FURNACE_ITEM.get())
+        if (item == ironfurnaces.init.Registration.VIBRANIUM_FURNACE_ITEM)
         {
             return Config.vibraniumFurnaceSpeed.get();
         }
-        if (item == ironfurnaces.init.Registration.UNOBTAINIUM_FURNACE_ITEM.get())
+        if (item == ironfurnaces.init.Registration.UNOBTAINIUM_FURNACE_ITEM)
         {
             return Config.unobtainiumFurnaceSpeed.get();
         }
-        if (item == ironfurnaces.init.Registration.COPPER_FURNACE_ITEM.get())
+        if (item == ironfurnaces.init.Registration.COPPER_FURNACE_ITEM)
         {
             return Config.copperFurnaceSpeed.get();
         }
-        if (item == ironfurnaces.init.Registration.CRYSTAL_FURNACE_ITEM.get())
+        if (item == ironfurnaces.init.Registration.CRYSTAL_FURNACE_ITEM)
         {
             return Config.crystalFurnaceSpeed.get();
         }
-        if (item == ironfurnaces.init.Registration.DIAMOND_FURNACE_ITEM.get())
+        if (item == ironfurnaces.init.Registration.DIAMOND_FURNACE_ITEM)
         {
             return Config.diamondFurnaceSpeed.get();
         }
-        if (item == ironfurnaces.init.Registration.EMERALD_FURNACE_ITEM.get())
+        if (item == ironfurnaces.init.Registration.EMERALD_FURNACE_ITEM)
         {
             return Config.emeraldFurnaceSpeed.get();
         }
-        if (item == ironfurnaces.init.Registration.GOLD_FURNACE_ITEM.get())
+        if (item == ironfurnaces.init.Registration.GOLD_FURNACE_ITEM)
         {
             return Config.goldFurnaceSpeed.get();
         }
-        if (item == ironfurnaces.init.Registration.IRON_FURNACE_ITEM.get())
+        if (item == ironfurnaces.init.Registration.IRON_FURNACE_ITEM)
         {
             return Config.ironFurnaceSpeed.get();
         }
-        if (item == ironfurnaces.init.Registration.NETHERITE_FURNACE_ITEM.get())
+        if (item == ironfurnaces.init.Registration.NETHERITE_FURNACE_ITEM)
         {
             return Config.netheriteFurnaceSpeed.get();
         }
-        if (item == ironfurnaces.init.Registration.OBSIDIAN_FURNACE_ITEM.get())
+        if (item == ironfurnaces.init.Registration.OBSIDIAN_FURNACE_ITEM)
         {
             return Config.obsidianFurnaceSpeed.get();
         }
-        if (item == ironfurnaces.init.Registration.SILVER_FURNACE_ITEM.get())
+        if (item == ironfurnaces.init.Registration.SILVER_FURNACE_ITEM)
         {
             return Config.silverFurnaceSpeed.get();
         }

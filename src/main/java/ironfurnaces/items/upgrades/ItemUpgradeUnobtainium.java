@@ -22,6 +22,6 @@ public class ItemUpgradeUnobtainium extends ItemUpgrade {
 
 
     public ItemUpgradeUnobtainium(Properties properties) {
-        super(properties, ironfurnaces.init.Registration.VIBRANIUM_FURNACE.get(), ironfurnaces.init.Registration.UNOBTAINIUM_FURNACE.get());
+        super(properties, ironfurnaces.init.Registration.VIBRANIUM_FURNACE, ironfurnaces.init.Registration.UNOBTAINIUM_FURNACE);
     }
 }

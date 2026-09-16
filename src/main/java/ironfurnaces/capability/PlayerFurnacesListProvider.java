@@ -16,39 +16,20 @@
 
 package ironfurnaces.capability;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
-import net.neoforged.neoforge.common.util.ValueIOSerializable;
 
-public class PlayerFurnacesListProvider implements ValueIOSerializable {
+public class PlayerFurnacesListProvider {
+
+    public static final Codec<PlayerFurnacesListProvider> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            BlockPos.CODEC.listOf().fieldOf("positions").forGetter(p -> p.furnacesList.listFurances)
+    ).apply(instance, list -> {
+        PlayerFurnacesListProvider provider = new PlayerFurnacesListProvider();
+        provider.furnacesList.listFurances.clear();
+        provider.furnacesList.listFurances.addAll(list);
+        return provider;
+    }));
 
     public PlayerFurnacesList furnacesList = new PlayerFurnacesList();
-
-    @Override
-    public void serialize(ValueOutput output) {
-        output.putInt("count", furnacesList.listFurances.size());
-        ValueOutput furnaces = output.child("furnaces");
-        for (int i = 0; i < furnacesList.listFurances.size(); i++) {
-            ValueOutput blockpos = furnaces.child("furnace" + i);
-            blockpos.putInt("X", furnacesList.listFurances.get(i).getX());
-            blockpos.putInt("Y", furnacesList.listFurances.get(i).getY());
-            blockpos.putInt("Z", furnacesList.listFurances.get(i).getZ());
-        }
-    }
-
-    @Override
-    public void deserialize(ValueInput input) {
-        furnacesList.listFurances.clear();
-        int size = input.getIntOr("count", 0);
-        input.child("furnaces").ifPresent(furnaces -> {
-            for (int i = 0; i < size; i++) {
-                int idx = i;
-                furnaces.child("furnace" + idx).ifPresent(furnace -> {
-                    BlockPos pos = new BlockPos(furnace.getIntOr("X", 0), furnace.getIntOr("Y", 0), furnace.getIntOr("Z", 0));
-                    furnacesList.listFurances.add(pos);
-                });
-            }
-        });
-    }
 }

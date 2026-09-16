@@ -16,384 +16,311 @@
 
 package ironfurnaces;
 
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.event.config.ModConfigEvent;
-import net.neoforged.neoforge.common.ModConfigSpec;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.mojang.logging.LogUtils;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.util.Mth;
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
-@EventBusSubscriber(modid = IronFurnaces.MOD_ID)
-public class Config {
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
-    private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
+/**
+ * Common config aligned with NeoForge {@code ironfurnaces-common.toml} semantics.
+ * Stored as {@code config/ironfurnaces.json} (no third-party config library).
+ */
+public final class Config {
 
-    
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     public static final String CATEGORY_GENERAL = "general";
     public static final String CATEGORY_FURNACE = "furnaces";
     public static final String CATEGORY_MODDED_FURNACE = "modded_furnaces";
     public static final String CATEGORY_MISC = "misc";
-    
 
-    public static ModConfigSpec.IntValue ironFurnaceSpeed;
-    public static ModConfigSpec.IntValue goldFurnaceSpeed;
-    public static ModConfigSpec.IntValue diamondFurnaceSpeed;
-    public static ModConfigSpec.IntValue emeraldFurnaceSpeed;
-    public static ModConfigSpec.IntValue obsidianFurnaceSpeed;
-    public static ModConfigSpec.IntValue crystalFurnaceSpeed;
-    public static ModConfigSpec.IntValue netheriteFurnaceSpeed;
-    public static ModConfigSpec.IntValue copperFurnaceSpeed;
-    public static ModConfigSpec.IntValue silverFurnaceSpeed;
-    public static ModConfigSpec.IntValue millionFurnaceSpeed;
-    public static ModConfigSpec.IntValue millionFurnacePowerToGenerate;
+    public static final IntValue ironFurnaceSpeed = new IntValue(160, 2, 72000);
+    public static final IntValue goldFurnaceSpeed = new IntValue(120, 2, 72000);
+    public static final IntValue diamondFurnaceSpeed = new IntValue(80, 2, 72000);
+    public static final IntValue emeraldFurnaceSpeed = new IntValue(40, 2, 72000);
+    public static final IntValue obsidianFurnaceSpeed = new IntValue(20, 2, 72000);
+    public static final IntValue crystalFurnaceSpeed = new IntValue(40, 2, 72000);
+    public static final IntValue netheriteFurnaceSpeed = new IntValue(5, 2, 72000);
+    public static final IntValue copperFurnaceSpeed = new IntValue(180, 2, 72000);
+    public static final IntValue silverFurnaceSpeed = new IntValue(140, 2, 72000);
+    public static final IntValue millionFurnaceSpeed = new IntValue(20, 2, 72000);
+    public static final IntValue millionFurnacePowerToGenerate = new IntValue(50000, 1, 100000000);
 
+    public static final IntValue ironFurnaceGeneration = new IntValue(40, 1, 100000);
+    public static final IntValue goldFurnaceGeneration = new IntValue(160, 1, 100000);
+    public static final IntValue diamondFurnaceGeneration = new IntValue(240, 1, 100000);
+    public static final IntValue emeraldFurnaceGeneration = new IntValue(320, 1, 100000);
+    public static final IntValue obsidianFurnaceGeneration = new IntValue(500, 1, 100000);
+    public static final IntValue crystalFurnaceGeneration = new IntValue(360, 1, 100000);
+    public static final IntValue netheriteFurnaceGeneration = new IntValue(1000, 1, 100000);
+    public static final IntValue copperFurnaceGeneration = new IntValue(40, 1, 100000);
+    public static final IntValue silverFurnaceGeneration = new IntValue(100, 1, 100000);
+    public static final IntValue millionFurnaceGeneration = new IntValue(2000, 1, 100000);
 
-    public static ModConfigSpec.IntValue ironFurnaceGeneration;
-    public static ModConfigSpec.IntValue goldFurnaceGeneration;
-    public static ModConfigSpec.IntValue diamondFurnaceGeneration;
-    public static ModConfigSpec.IntValue emeraldFurnaceGeneration;
-    public static ModConfigSpec.IntValue obsidianFurnaceGeneration;
-    public static ModConfigSpec.IntValue crystalFurnaceGeneration;
-    public static ModConfigSpec.IntValue netheriteFurnaceGeneration;
-    public static ModConfigSpec.IntValue copperFurnaceGeneration;
-    public static ModConfigSpec.IntValue silverFurnaceGeneration;
-    public static ModConfigSpec.IntValue millionFurnaceGeneration;
+    public static final IntValue furnaceEnergyCapacityTier0 = new IntValue(80000, 4000, Integer.MAX_VALUE);
+    public static final IntValue furnaceEnergyCapacityTier1 = new IntValue(200000, 4000, Integer.MAX_VALUE);
+    public static final IntValue furnaceEnergyCapacityTier2 = new IntValue(1000000, 4000, Integer.MAX_VALUE);
 
+    public static final IntValue ironFurnaceTier = new IntValue(0, 0, 2);
+    public static final IntValue goldFurnaceTier = new IntValue(1, 0, 2);
+    public static final IntValue diamondFurnaceTier = new IntValue(2, 0, 2);
+    public static final IntValue emeraldFurnaceTier = new IntValue(2, 0, 2);
+    public static final IntValue obsidianFurnaceTier = new IntValue(2, 0, 2);
+    public static final IntValue crystalFurnaceTier = new IntValue(2, 0, 2);
+    public static final IntValue netheriteFurnaceTier = new IntValue(2, 0, 2);
+    public static final IntValue copperFurnaceTier = new IntValue(0, 0, 2);
+    public static final IntValue silverFurnaceTier = new IntValue(1, 0, 2);
+    public static final IntValue millionFurnaceTier = new IntValue(2, 0, 2);
 
-    public static ModConfigSpec.IntValue furnaceEnergyCapacityTier0;
-    public static ModConfigSpec.IntValue furnaceEnergyCapacityTier1;
-    public static ModConfigSpec.IntValue furnaceEnergyCapacityTier2;
+    public static final IntValue recipeMaxXPLevel = new IntValue(100, 1, 1000);
 
-    public static ModConfigSpec.IntValue ironFurnaceTier;
-    public static ModConfigSpec.IntValue goldFurnaceTier;
-    public static ModConfigSpec.IntValue diamondFurnaceTier;
-    public static ModConfigSpec.IntValue emeraldFurnaceTier;
-    public static ModConfigSpec.IntValue obsidianFurnaceTier;
-    public static ModConfigSpec.IntValue crystalFurnaceTier;
-    public static ModConfigSpec.IntValue netheriteFurnaceTier;
-    public static ModConfigSpec.IntValue copperFurnaceTier;
-    public static ModConfigSpec.IntValue silverFurnaceTier;
-    public static ModConfigSpec.IntValue millionFurnaceTier;
+    public static final BoolValue showErrors = new BoolValue(true);
+    public static final BoolValue disableLightupdates = new BoolValue(false);
 
-    public static ModConfigSpec.IntValue recipeMaxXPLevel;
+    public static final IntValue vibraniumFurnaceSpeed = new IntValue(3, 1, 72000);
+    public static final IntValue unobtainiumFurnaceSpeed = new IntValue(1, 1, 72000);
+    public static final IntValue allthemodiumFurnaceSpeed = new IntValue(5, 1, 72000);
+    public static final IntValue vibraniumFurnaceSmeltMult = new IntValue(32, 1, 64);
+    public static final IntValue unobtainiumFurnaceSmeltMult = new IntValue(64, 1, 64);
+    public static final IntValue allthemodiumFurnaceSmeltMult = new IntValue(16, 1, 64);
 
+    public static final IntValue allthemodiumGeneration = new IntValue(2000, 1, 100000);
+    public static final IntValue vibraniumGeneration = new IntValue(3000, 1, 100000);
+    public static final IntValue unobtainiumGeneration = new IntValue(5000, 1, 100000);
 
-    public static ModConfigSpec.BooleanValue showErrors;
-    public static ModConfigSpec.BooleanValue disableLightupdates;
-    
+    public static final IntValue allthemodiumFurnaceTier = new IntValue(2, 0, 2);
+    public static final IntValue vibraniumFurnaceTier = new IntValue(2, 0, 2);
+    public static final IntValue unobtainiumFurnaceTier = new IntValue(2, 0, 2);
 
-    //ALLTHEMODS
-    public static ModConfigSpec.IntValue vibraniumFurnaceSpeed;
-    public static ModConfigSpec.IntValue unobtainiumFurnaceSpeed;
-    public static ModConfigSpec.IntValue allthemodiumFurnaceSpeed;
-    public static ModConfigSpec.IntValue vibraniumFurnaceSmeltMult;
-    public static ModConfigSpec.IntValue unobtainiumFurnaceSmeltMult;
-    public static ModConfigSpec.IntValue allthemodiumFurnaceSmeltMult;
-
-    public static ModConfigSpec.IntValue allthemodiumGeneration;
-    public static ModConfigSpec.IntValue vibraniumGeneration;
-    public static ModConfigSpec.IntValue unobtainiumGeneration;
-
-    public static ModConfigSpec.IntValue allthemodiumFurnaceTier;
-    public static ModConfigSpec.IntValue vibraniumFurnaceTier;
-    public static ModConfigSpec.IntValue unobtainiumFurnaceTier;
-
-    static final ModConfigSpec SPEC;
-
-    static {
-   
-        BUILDER.comment("Settings").push(CATEGORY_GENERAL);
-        BUILDER.pop();
-
-        BUILDER.comment("Furnace Settings").push(CATEGORY_FURNACE);
-
-        setupFurnacesConfig();
-        setupGenerationConfig();
-
-        BUILDER.pop();
-
-        BUILDER.comment("Modded Furnace Settings").push(CATEGORY_MODDED_FURNACE);
-
-        setupModdedFurnacesConfig();
-
-        BUILDER.pop();
-
-
-        BUILDER.comment("Misc").push(CATEGORY_MISC);
-        
-        disableLightupdates = BUILDER
-                .comment(" Enable or disable light-updates, furances will no longer emit light, true = disable").define("misc.lightupdates", false);
-        
-        BUILDER.pop();
-        
-        SPEC = BUILDER.build();
+    private Config() {
     }
 
-
-    private static void setupGenerationConfig() {
-        ironFurnaceGeneration = BUILDER
-                .comment(" How much RF to generate per tick\n Default: 40")
-                .defineInRange("iron_furnace.generation", 40, 1, 100000);
-        goldFurnaceGeneration = BUILDER
-                .comment(" How much RF to generate per tick\n Default: 160")
-                .defineInRange("gold_furnace.generation", 160, 1, 100000);
-        diamondFurnaceGeneration = BUILDER
-                .comment(" How much RF to generate per tick\n Default: 240")
-                .defineInRange("diamond_furnace.generation", 240, 1, 100000);
-        emeraldFurnaceGeneration = BUILDER
-                .comment(" How much RF to generate per tick\n Default: 320")
-                .defineInRange("emerald_furnace.generation", 320, 1, 100000);
-        obsidianFurnaceGeneration = BUILDER
-                .comment(" How much RF to generate per tick\n Default: 500")
-                .defineInRange("obsidian_furnace.generation", 500, 1, 100000);
-        crystalFurnaceGeneration = BUILDER
-                .comment(" How much RF to generate per tick\n Default: 360")
-                .defineInRange("crystal_furnace.generation", 360, 1, 100000);
-        netheriteFurnaceGeneration = BUILDER
-                .comment(" How much RF to generate per tick\n Default: 1000")
-                .defineInRange("netherite_furnace.generation", 1000, 1, 100000);
-        millionFurnaceGeneration = BUILDER
-                .comment(" How much RF to generate per tick\n Default: 2000")
-                .defineInRange("rainbow_furnace.generation", 2000, 1, 100000);
-        copperFurnaceGeneration = BUILDER
-                .comment(" How much RF to generate per tick\n Default: 40")
-                .defineInRange("copper_furnace.generation", 40, 1, 100000);
-        silverFurnaceGeneration = BUILDER
-                .comment(" How much RF to generate per tick\n Default: 100")
-                .defineInRange("silver_furnace.generation", 100, 1, 100000);
-
-    }
-
-    private static void setupFurnacesConfig() {
-
-
-        furnaceEnergyCapacityTier0 = BUILDER
-                .comment(" How much energy can be stored in tier 0 furnaces.\n Default: 80 000")
-                .defineInRange("energy.tier_0", 80000, 4000, Integer.MAX_VALUE);
-
-        furnaceEnergyCapacityTier1 = BUILDER
-                .comment(" How much energy can be stored in tier 1 furnaces.\n Default: 200 000")
-                .defineInRange("energy.tier_1", 200000, 4000, Integer.MAX_VALUE);
-
-        furnaceEnergyCapacityTier2 = BUILDER
-                .comment(" How much energy can be stored in tier 2 furnaces.\n Default: 1 000 000")
-                .defineInRange("energy.tier_2", 1000000, 4000, Integer.MAX_VALUE);
-
-        ironFurnaceTier = BUILDER
-                .comment(" What tier this furnace should be.\n Default: 0")
-                .defineInRange("iron_furnace.tier", 0, 0, 2);
-
-        copperFurnaceTier = BUILDER
-                .comment(" What tier this furnace should be.\n Default: 0")
-                .defineInRange("copper_furnace.tier", 0, 0, 2);
-
-        goldFurnaceTier = BUILDER
-                .comment(" What tier this furnace should be.\n Default: 1")
-                .defineInRange("gold_furnace.tier", 1, 0, 2);
-
-        diamondFurnaceTier = BUILDER
-                .comment(" What tier this furnace should be.\n Default: 1")
-                .defineInRange("diamond_furnace.tier", 2, 0, 2);
-
-        emeraldFurnaceTier = BUILDER
-                .comment(" What tier this furnace should be.\n Default: 1")
-                .defineInRange("emerald_furnace.tier", 2, 0, 2);
-
-        silverFurnaceTier = BUILDER
-                .comment(" What tier this furnace should be.\n Default: 1")
-                .defineInRange("silver_furnace.tier", 1, 0, 2);
-
-        crystalFurnaceTier = BUILDER
-                .comment(" What tier this furnace should be.\n Default: 2")
-                .defineInRange("crystal_furnace.tier", 2, 0, 2);
-
-        obsidianFurnaceTier = BUILDER
-                .comment(" What tier this furnace should be.\n Default: 2")
-                .defineInRange("obsidian_furnace.tier", 2, 0, 2);
-
-        netheriteFurnaceTier = BUILDER
-                .comment(" What tier this furnace should be.\n Default: 2")
-                .defineInRange("netherite_furnace.tier", 2, 0, 2);
-
-        millionFurnaceTier = BUILDER
-                .comment(" What tier this furnace should be.\n Default: 2")
-                .defineInRange("million_furnace.tier", 2, 0, 2);
-        
-
-        ironFurnaceSpeed = BUILDER
-                .comment(" Number of ticks to complete one smelting operation.\n 200 ticks is what a regular furnace takes.\n Default: 160")
-                .defineInRange("iron_furnace.speed", 160, 2, 72000);
-
-        goldFurnaceSpeed = BUILDER
-                .comment(" Number of ticks to complete one smelting operation.\n 200 ticks is what a regular furnace takes.\n Default: 120")
-                .defineInRange("gold_furnace.speed", 120, 2, 72000);
-
-        diamondFurnaceSpeed = BUILDER
-                .comment(" Number of ticks to complete one smelting operation.\n 200 ticks is what a regular furnace takes.\n Default: 80")
-                .defineInRange("diamond_furnace.speed", 80, 2, 72000);
-
-        emeraldFurnaceSpeed = BUILDER
-                .comment(" Number of ticks to complete one smelting operation.\n 200 ticks is what a regular furnace takes.\n Default: 40")
-                .defineInRange("emerald_furnace.speed", 40, 2, 72000);
-
-        obsidianFurnaceSpeed = BUILDER
-                .comment(" Number of ticks to complete one smelting operation.\n 200 ticks is what a regular furnace takes.\n Default: 20")
-                .defineInRange("obsidian_furnace.speed", 20, 2, 72000);
-
-        crystalFurnaceSpeed = BUILDER
-                .comment(" Number of ticks to complete one smelting operation.\n 200 ticks is what a regular furnace takes.\n Default: 40")
-                .defineInRange("crystal_furnace.speed", 40, 2, 72000);
-
-        netheriteFurnaceSpeed = BUILDER
-                .comment(" Number of ticks to complete one smelting operation.\n 200 ticks is what a regular furnace takes.\n Default: 5")
-                .defineInRange("netherite_furnace.speed", 5, 2, 72000);
-
-        copperFurnaceSpeed = BUILDER
-                .comment(" Number of ticks to complete one smelting operation.\n 200 ticks is what a regular furnace takes.\n Default: 180")
-                .defineInRange("copper_furnace.speed", 180, 2, 72000);
-
-        silverFurnaceSpeed = BUILDER
-                .comment(" Number of ticks to complete one smelting operation.\n 200 ticks is what a regular furnace takes.\n Default: 140")
-                .defineInRange("silver_furnace.speed", 140, 2, 72000);
-
-        millionFurnaceSpeed = BUILDER
-                .comment(" Number of ticks to complete one smelting operation.\n 200 ticks is what a regular furnace takes.\n Default: 20")
-                .defineInRange("rainbow_furnace.speed", 20, 2, 72000);
-
-
-        millionFurnacePowerToGenerate = BUILDER
-                .comment(" How much power the Rainbow Furnace will generate.\n Default: 50000")
-                .defineInRange("rainbow_furnace.rainbow_generation", 50000, 1, 100000000);
-
-
-        recipeMaxXPLevel = BUILDER
-                .comment(" How many levels of experience that can be stored in recipes stored in the furnace, after the experience stored in the recipe reaches this value (in levels) it will be voided.\n Default: 100 \n 100 levels is 30971 XP")
-                .defineInRange("recipeMaxXPLevel.level", 100, 1, 1000);
-
-    }
-
-    private static void setupModdedFurnacesConfig() {
-
-        allthemodiumFurnaceSpeed = BUILDER
-                .comment(" Number of ticks to complete one smelting operation.\n 200 ticks is what a regular furnace takes.\n Default: 5")
-                .defineInRange("allthemodium_furnace.speed", 5, 1, 72000);
-        vibraniumFurnaceSpeed = BUILDER
-                .comment(" Number of ticks to complete one smelting operation.\n 200 ticks is what a regular furnace takes.\n Default: 3")
-                .defineInRange("vibranium_furnace.speed", 3, 1, 72000);
-        unobtainiumFurnaceSpeed = BUILDER
-                .comment(" Number of ticks to complete one smelting operation.\n 200 ticks is what a regular furnace takes.\n Default: 1")
-                .defineInRange("unobtainium_furnace.speed", 1, 1, 72000);
-        allthemodiumFurnaceSmeltMult = BUILDER
-                .comment(" Number of items that can be smelted at once. The regular furnace only smelts 1 item at once of course.\n Default: 16")
-                .defineInRange("allthemodium_furnace.mult", 16, 1, 64);
-        vibraniumFurnaceSmeltMult = BUILDER
-                .comment(" Number of items that can be smelted at once. The regular furnace only smelts 1 item at once of course.\n Default: 32")
-                .defineInRange("vibranium_furnace.mult", 32, 1, 64);
-        unobtainiumFurnaceSmeltMult = BUILDER
-                .comment(" Number of items that can be smelted at once. The regular furnace only smelts 1 item at once of course.\n Default: 64")
-                .defineInRange("unobtainium_furnace.mult", 64, 1, 64);
-        allthemodiumGeneration = BUILDER
-                .comment(" How much RF to generate per tick\n Default: 2000")
-                .defineInRange("allthemodium_furnace.generation", 2000, 1, 100000);
-        vibraniumGeneration = BUILDER
-                .comment(" How much RF to generate per tick\n Default: 3000")
-                .defineInRange("vibranium_furnace.generation", 3000, 1, 100000);
-        unobtainiumGeneration = BUILDER
-                .comment(" How much RF to generate per tick\n Default: 5000")
-                .defineInRange("unobtainium_furnace.generation", 5000, 1, 100000);
-
-        allthemodiumFurnaceTier = BUILDER
-                .comment(" What tier this furnace should be.\n Default: 2")
-                .defineInRange("allthemodium_furnace.tier", 2, 0, 2);
-
-        vibraniumFurnaceTier = BUILDER
-                .comment(" What tier this furnace should be.\n Default: 2")
-                .defineInRange("vibranium_furnace.tier", 2, 0, 2);
-
-        unobtainiumFurnaceTier = BUILDER
-                .comment(" What tier this furnace should be.\n Default: 2")
-                .defineInRange("unobtainium_furnace.tier", 2, 0, 2);
-
-    }
-
-
-
-
-
-
-    @SubscribeEvent
-    static void onLoad(final ModConfigEvent event)
-    {
-        
-    }
-
-
-    /**
-
-    @SubscribeEvent
-    public static void player(final TickEvent.PlayerTickEvent event) {
-
-        if (Config.disableWebContent.get())
-        {
-            return;
-        }
-
-        if (!run)
-        {
-            return;
-        }
-        if (!event.player.level().isClientSide()) {
-            if (event.player.getServer().getAdvancements() != null)
-            {
-                Advancement adv = event.player.getServer().getAdvancements().getAdvancement(net.minecraft.resources.Identifier.fromNamespaceAndPath(IronFurnaces.MOD_ID, "coal"));
-                if (adv != null)
-                {
-                    if (!((ServerPlayer) event.player).getAdvancements().getOrStartProgress(adv).isDone()) {
-                        Player player = getPlayer(event.player.level());
-                        if (player != null && player == event.player) {
-                            event.player.level().addFreshEntity(new ItemEntity(event.player.level(), event.player.position().x, event.player.position().y, event.player.position().z, new ItemStack(ironfurnaces.init.Registration.RAINBOW_COAL.get())));
-
-                        }
-                    }
-                }
+    public static void load() {
+        Path dir = FabricLoader.getInstance().getConfigDir();
+        Path path = dir.resolve("ironfurnaces.json");
+        if (!Files.exists(path)) {
+            try {
+                Files.createDirectories(dir);
+                saveDefaults(path);
+            } catch (IOException e) {
+                LOGGER.error("Failed to write default ironfurnaces.json", e);
             }
-
-
-
-
+            return;
         }
-        run = false;
-
-
+        try (Reader r = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+            JsonObject root = JsonParser.parseReader(r).getAsJsonObject();
+            loadFromRoot(root);
+        } catch (Exception e) {
+            LOGGER.error("Failed to load ironfurnaces.json; using defaults", e);
+        }
     }
 
+    private static void loadFromRoot(JsonObject root) {
+        JsonObject general = obj(root, CATEGORY_GENERAL);
+        applyBool(general, "show_errors", showErrors);
 
-    @Nullable
-    public static Player getPlayer(Level world) {
+        JsonObject misc = obj(root, CATEGORY_MISC);
+        applyBool(misc, "lightupdates", disableLightupdates);
 
-        if (Config.disableWebContent.get())
-        {
-            return null;
+        JsonObject furnaces = obj(root, CATEGORY_FURNACE);
+        JsonObject energy = obj(furnaces, "energy");
+        applyInt(energy, "tier_0", furnaceEnergyCapacityTier0);
+        applyInt(energy, "tier_1", furnaceEnergyCapacityTier1);
+        applyInt(energy, "tier_2", furnaceEnergyCapacityTier2);
+
+        applyFurnaceGroup(furnaces, "iron_furnace", ironFurnaceTier, ironFurnaceSpeed, ironFurnaceGeneration);
+        applyFurnaceGroup(furnaces, "copper_furnace", copperFurnaceTier, copperFurnaceSpeed, copperFurnaceGeneration);
+        applyFurnaceGroup(furnaces, "gold_furnace", goldFurnaceTier, goldFurnaceSpeed, goldFurnaceGeneration);
+        applyFurnaceGroup(furnaces, "diamond_furnace", diamondFurnaceTier, diamondFurnaceSpeed, diamondFurnaceGeneration);
+        applyFurnaceGroup(furnaces, "emerald_furnace", emeraldFurnaceTier, emeraldFurnaceSpeed, emeraldFurnaceGeneration);
+        applyFurnaceGroup(furnaces, "silver_furnace", silverFurnaceTier, silverFurnaceSpeed, silverFurnaceGeneration);
+        applyFurnaceGroup(furnaces, "crystal_furnace", crystalFurnaceTier, crystalFurnaceSpeed, crystalFurnaceGeneration);
+        applyFurnaceGroup(furnaces, "obsidian_furnace", obsidianFurnaceTier, obsidianFurnaceSpeed, obsidianFurnaceGeneration);
+        applyFurnaceGroup(furnaces, "netherite_furnace", netheriteFurnaceTier, netheriteFurnaceSpeed, netheriteFurnaceGeneration);
+
+        JsonObject rainbow = obj(furnaces, "rainbow_furnace");
+        applyInt(rainbow, "speed", millionFurnaceSpeed);
+        applyInt(rainbow, "generation", millionFurnaceGeneration);
+        applyInt(rainbow, "rainbow_generation", millionFurnacePowerToGenerate);
+
+        JsonObject million = obj(furnaces, "million_furnace");
+        applyInt(million, "tier", millionFurnaceTier);
+
+        applyInt(furnaces, "recipeMaxXPLevel", recipeMaxXPLevel);
+
+        JsonObject modded = obj(root, CATEGORY_MODDED_FURNACE);
+        applyModded(modded, "allthemodium_furnace", allthemodiumFurnaceSpeed, allthemodiumFurnaceSmeltMult,
+                allthemodiumGeneration, allthemodiumFurnaceTier);
+        applyModded(modded, "vibranium_furnace", vibraniumFurnaceSpeed, vibraniumFurnaceSmeltMult,
+                vibraniumGeneration, vibraniumFurnaceTier);
+        applyModded(modded, "unobtainium_furnace", unobtainiumFurnaceSpeed, unobtainiumFurnaceSmeltMult,
+                unobtainiumGeneration, unobtainiumFurnaceTier);
+    }
+
+    private static void applyFurnaceGroup(JsonObject furnaces, String name, IntValue tier, IntValue speed, IntValue generation) {
+        JsonObject o = obj(furnaces, name);
+        applyInt(o, "tier", tier);
+        applyInt(o, "speed", speed);
+        applyInt(o, "generation", generation);
+    }
+
+    private static void applyModded(JsonObject modded, String name, IntValue speed, IntValue mult, IntValue gen, IntValue tier) {
+        JsonObject o = obj(modded, name);
+        applyInt(o, "speed", speed);
+        applyInt(o, "mult", mult);
+        applyInt(o, "generation", gen);
+        applyInt(o, "tier", tier);
+    }
+
+    private static void saveDefaults(Path path) throws IOException {
+        JsonObject root = new JsonObject();
+
+        JsonObject general = new JsonObject();
+        general.addProperty("show_errors", showErrors.get());
+        root.add(CATEGORY_GENERAL, general);
+
+        JsonObject misc = new JsonObject();
+        misc.addProperty("lightupdates", disableLightupdates.get());
+        root.add(CATEGORY_MISC, misc);
+
+        JsonObject furnaces = new JsonObject();
+        JsonObject energy = new JsonObject();
+        energy.addProperty("tier_0", furnaceEnergyCapacityTier0.get());
+        energy.addProperty("tier_1", furnaceEnergyCapacityTier1.get());
+        energy.addProperty("tier_2", furnaceEnergyCapacityTier2.get());
+        furnaces.add("energy", energy);
+
+        putFurnaceGroup(furnaces, "iron_furnace", ironFurnaceTier, ironFurnaceSpeed, ironFurnaceGeneration);
+        putFurnaceGroup(furnaces, "copper_furnace", copperFurnaceTier, copperFurnaceSpeed, copperFurnaceGeneration);
+        putFurnaceGroup(furnaces, "gold_furnace", goldFurnaceTier, goldFurnaceSpeed, goldFurnaceGeneration);
+        putFurnaceGroup(furnaces, "diamond_furnace", diamondFurnaceTier, diamondFurnaceSpeed, diamondFurnaceGeneration);
+        putFurnaceGroup(furnaces, "emerald_furnace", emeraldFurnaceTier, emeraldFurnaceSpeed, emeraldFurnaceGeneration);
+        putFurnaceGroup(furnaces, "silver_furnace", silverFurnaceTier, silverFurnaceSpeed, silverFurnaceGeneration);
+        putFurnaceGroup(furnaces, "crystal_furnace", crystalFurnaceTier, crystalFurnaceSpeed, crystalFurnaceGeneration);
+        putFurnaceGroup(furnaces, "obsidian_furnace", obsidianFurnaceTier, obsidianFurnaceSpeed, obsidianFurnaceGeneration);
+        putFurnaceGroup(furnaces, "netherite_furnace", netheriteFurnaceTier, netheriteFurnaceSpeed, netheriteFurnaceGeneration);
+
+        JsonObject rainbow = new JsonObject();
+        rainbow.addProperty("speed", millionFurnaceSpeed.get());
+        rainbow.addProperty("generation", millionFurnaceGeneration.get());
+        rainbow.addProperty("rainbow_generation", millionFurnacePowerToGenerate.get());
+        furnaces.add("rainbow_furnace", rainbow);
+
+        JsonObject million = new JsonObject();
+        million.addProperty("tier", millionFurnaceTier.get());
+        furnaces.add("million_furnace", million);
+
+        furnaces.addProperty("recipeMaxXPLevel", recipeMaxXPLevel.get());
+
+        JsonObject modded = new JsonObject();
+        putModded(modded, "allthemodium_furnace", allthemodiumFurnaceSpeed, allthemodiumFurnaceSmeltMult,
+                allthemodiumGeneration, allthemodiumFurnaceTier);
+        putModded(modded, "vibranium_furnace", vibraniumFurnaceSpeed, vibraniumFurnaceSmeltMult,
+                vibraniumGeneration, vibraniumFurnaceTier);
+        putModded(modded, "unobtainium_furnace", unobtainiumFurnaceSpeed, unobtainiumFurnaceSmeltMult,
+                unobtainiumGeneration, unobtainiumFurnaceTier);
+
+        root.add(CATEGORY_FURNACE, furnaces);
+        root.add(CATEGORY_MODDED_FURNACE, modded);
+
+        try (BufferedWriter w = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+            w.write(new com.google.gson.GsonBuilder().setPrettyPrinting().create().toJson(root));
+            w.write('\n');
         }
+    }
 
-        if (world == null) {
-            return null;
+    private static void putFurnaceGroup(JsonObject furnaces, String name, IntValue tier, IntValue speed, IntValue generation) {
+        JsonObject o = new JsonObject();
+        o.addProperty("tier", tier.get());
+        o.addProperty("speed", speed.get());
+        o.addProperty("generation", generation.get());
+        furnaces.add(name, o);
+    }
+
+    private static void putModded(JsonObject modded, String name, IntValue speed, IntValue mult, IntValue gen, IntValue tier) {
+        JsonObject o = new JsonObject();
+        o.addProperty("speed", speed.get());
+        o.addProperty("mult", mult.get());
+        o.addProperty("generation", gen.get());
+        o.addProperty("tier", tier.get());
+        modded.add(name, o);
+    }
+
+    private static JsonObject obj(@Nullable JsonObject parent, String key) {
+        if (parent == null || !parent.has(key)) {
+            return new JsonObject();
+        }
+        JsonElement el = parent.get(key);
+        return el.isJsonObject() ? el.getAsJsonObject() : new JsonObject();
+    }
+
+    private static void applyInt(@Nullable JsonObject parent, String key, IntValue target) {
+        if (parent == null || !parent.has(key)) {
+            return;
         }
         try {
-            URL newestURL = new URL("https://raw.githubusercontent.com/Qelifern/IronFurnaces/" + IronFurnaces.GITHUB_BRANCH + "/update/uuids.json");
-            JsonParser jp = new JsonParser();
-            JsonElement root = jp.parse(new InputStreamReader(newestURL.openStream()));
-            JsonObject rootobj = root.getAsJsonObject();
-            JsonArray array = rootobj.get("values").getAsJsonArray();
-            for (int i = 0; i < array.size(); i++) {
-                if (world.getPlayerByUUID(UUID.fromString(array.get(i).getAsString())) != null) {
-                    return world.getPlayerByUUID(UUID.fromString(array.get(i).getAsString()));
-                }
-            }
-        } catch (Exception e) {
-            //e.printStackTrace();
+            target.set(parent.get(key).getAsInt());
+        } catch (Exception ignored) {
         }
-
-        return null;
     }
 
-    **/
+    private static void applyBool(@Nullable JsonObject parent, String key, BoolValue target) {
+        if (parent == null || !parent.has(key)) {
+            return;
+        }
+        try {
+            JsonElement el = parent.get(key);
+            if (el.isJsonPrimitive()) {
+                target.set(el.getAsBoolean());
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    public static final class IntValue {
+        private final int min;
+        private final int max;
+        private int value;
+
+        public IntValue(int defaultValue, int min, int max) {
+            this.min = min;
+            this.max = max;
+            this.value = Mth.clamp(defaultValue, min, max);
+        }
+
+        public int get() {
+            return value;
+        }
+
+        public void set(int v) {
+            this.value = Mth.clamp(v, min, max);
+        }
+    }
+
+    public static final class BoolValue {
+        private boolean value;
+
+        public BoolValue(boolean defaultValue) {
+            this.value = defaultValue;
+        }
+
+        public boolean get() {
+            return value;
+        }
+
+        public void set(boolean v) {
+            this.value = v;
+        }
+    }
 }

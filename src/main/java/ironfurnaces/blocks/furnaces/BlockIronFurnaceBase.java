@@ -17,6 +17,7 @@
 package ironfurnaces.blocks.furnaces;
 
 import ironfurnaces.Config;
+import ironfurnaces.capability.PlayerFurnacesListProvider;
 import ironfurnaces.init.Registration;
 import ironfurnaces.items.ItemFurnaceCopy;
 import ironfurnaces.items.ItemSpooky;
@@ -33,7 +34,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -48,8 +48,11 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -58,8 +61,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,15 +73,6 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
     public BlockIronFurnaceBase(Properties properties) {
         super(properties.destroyTime(3F));
         this.registerDefaultState(this.defaultBlockState().setValue(BlockStateProperties.LIT, false).setValue(TYPE, 0).setValue(JOVIAL, 0));
-    }
-
-    @Override
-    public int getLightEmission(BlockState state, BlockGetter world, BlockPos pos) {
-        if (Config.disableLightupdates.get())
-        {
-            return 0;
-        }
-        return state.getValue(BlockStateProperties.LIT) ? 14 : 0;
     }
 
     @Override
@@ -101,7 +94,7 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
             if (entity instanceof Player)
             {
                 Player player = (Player)entity;
-                player.getData(ironfurnaces.init.Registration.PLAYER_FURNACES_LIST.get()).furnacesList.add(pos);
+                player.getAttachedOrCreate(Registration.PLAYER_FURNACES_LIST, PlayerFurnacesListProvider::new).furnacesList.add(pos);
                 if (te instanceof BlockMillionFurnaceTile)
                 {
                     te.owner = player.getUUID();
@@ -150,7 +143,7 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
         CompoundTag newTag = new CompoundTag();
         newTag.putIntArray("settings", settings);
         newTag.putInt("direction", DirectionUtil.getId(te.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING)));
-        stack.set(ironfurnaces.init.Registration.FURNACE_SETTINGS.get(), CustomData.of(newTag));
+        stack.set(ironfurnaces.init.Registration.FURNACE_SETTINGS, CustomData.of(newTag));
 
         ((BlockIronFurnaceTileBase)te).onUpdateSent();
         player.sendSystemMessage(Component.literal("Settings copied"));
@@ -178,7 +171,8 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
             player.getMainHandItem().shrink(1);
         }
         ((BlockIronFurnaceTileBase)te).onUpdateSent();
-        te.getLevel().markAndNotifyBlock(pos, player.level().getChunkAt(pos), te.getLevel().getBlockState(pos).getBlock().defaultBlockState(), te.getLevel().getBlockState(pos), 2, 0);
+        var st = te.getLevel().getBlockState(pos);
+        te.getLevel().sendBlockUpdated(pos, st, st, Block.UPDATE_CLIENTS);
         return InteractionResult.SUCCESS;
     }
     private InteractionResult interactJovial(Level world, BlockPos pos, Player player, int jovial) {
@@ -200,7 +194,7 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
     private InteractionResult interactWith(Level level, BlockPos pos, Player player, BlockState state) {
         if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
             BlockEntity be = level.getBlockEntity(pos);
-            serverPlayer.openMenu((MenuProvider) be, buf -> buf.writeBlockPos(pos));
+            serverPlayer.openMenu((MenuProvider) be);
             if (be instanceof BlockIronFurnaceTileBase)
             {
                 ((BlockIronFurnaceTileBase) be).furnaceSettings.set(10, 0);
@@ -221,7 +215,7 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
                 return;
             }
             BlockIronFurnaceTileBase tile = ((BlockIronFurnaceTileBase) world.getBlockEntity(pos));
-            if (tile.getItem(3).getItem() == ironfurnaces.init.Registration.SMOKING_AUGMENT.get())
+            if (tile.getItem(3).getItem() == ironfurnaces.init.Registration.SMOKING_AUGMENT)
             {
                 double lvt_5_1_ = (double)pos.getX() + 0.5D;
                 double lvt_7_1_ = (double)pos.getY();
@@ -233,7 +227,7 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
                 world.addParticle(ParticleTypes.SMOKE, lvt_5_1_, lvt_7_1_ + 1.1D, lvt_9_1_, 0.0D, 0.0D, 0.0D);
 
             }
-            else if (tile.getItem(3).getItem() == ironfurnaces.init.Registration.BLASTING_AUGMENT.get())
+            else if (tile.getItem(3).getItem() == ironfurnaces.init.Registration.BLASTING_AUGMENT)
             {
                 double lvt_5_1_ = (double)pos.getX() + 0.5D;
                 double lvt_7_1_ = (double)pos.getY();
@@ -276,25 +270,6 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
         }
     }
 
-    @Override
-    public void onBlockStateChange(LevelReader levelReader, BlockPos pos, BlockState oldState, BlockState newState) {
-        if (oldState.getBlock() != newState.getBlock() && levelReader instanceof ServerLevel world) {
-            BlockEntity te = world.getBlockEntity(pos);
-            if (te instanceof BlockIronFurnaceTileBase) {
-                BlockIronFurnaceTileBase furnace = ((BlockIronFurnaceTileBase) te);
-                if (furnace.owner != null) {
-                    if (world.getPlayerByUUID(furnace.owner) != null) {
-                        world.getPlayerByUUID(furnace.owner).getData(ironfurnaces.init.Registration.PLAYER_FURNACES_LIST.get()).furnacesList.remove(te.getBlockPos());
-                    }
-                }
-                Containers.dropContents(world, pos, furnace);
-                furnace.grantStoredRecipeExperience(world, new Vec3(pos.getX(), pos.getY(), pos.getZ()));
-                world.updateNeighbourForOutputSignal(pos, this);
-            }
-        }
-        super.onBlockStateChange(levelReader, pos, oldState, newState);
-    }
-
     public int getComparatorInputOverride(BlockState state, Level world, BlockPos pos) {
         List<Integer> slots = new ArrayList<>();
         if (world.getBlockEntity(pos) instanceof BlockIronFurnaceTileBase)
@@ -335,6 +310,11 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
         return 0;
     }
 
+    @Override
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
+        return getComparatorInputOverride(state, level, pos);
+    }
+
     public static int getRedstoneSignalFromContainer(@Nullable Container container, List<Integer> slots) {
         if (container == null) {
             return 0;
@@ -360,11 +340,13 @@ public abstract class BlockIronFurnaceBase extends Block implements EntityBlock 
         return RenderShape.MODEL;
     }
 
-    public BlockState rotate(BlockState p_185499_1_, Rotation p_185499_2_) {
+    @Override
+    protected BlockState rotate(BlockState p_185499_1_, Rotation p_185499_2_) {
         return (BlockState)p_185499_1_.setValue(BlockStateProperties.HORIZONTAL_FACING, p_185499_2_.rotate((Direction)p_185499_1_.getValue(BlockStateProperties.HORIZONTAL_FACING)));
     }
 
-    public BlockState mirror(BlockState p_185471_1_, Mirror p_185471_2_) {
+    @Override
+    protected BlockState mirror(BlockState p_185471_1_, Mirror p_185471_2_) {
         return p_185471_1_.rotate(p_185471_2_.getRotation((Direction)p_185471_1_.getValue(BlockStateProperties.HORIZONTAL_FACING)));
     }
 

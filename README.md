@@ -1,6 +1,6 @@
 # Iron Furnaces
 
-Iron Furnaces but newer - upgraded metal furnaces for faster smelting.
+Iron Furnaces but newer — a Fabric port of Iron Furnaces with upgraded metal furnaces for faster smelting.
 
 **Homepage:** https://github.com/astryxion/Iron-Furnaces
 

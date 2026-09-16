@@ -80,7 +80,7 @@ public class RecipeCategoryGeneratorBlasting implements IRecipeCategory<Generato
 
     @Override
     public IDrawable getIcon() {
-        return guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(ironfurnaces.init.Registration.GENERATOR_AUGMENT.get()));
+        return guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(ironfurnaces.init.Registration.GENERATOR_AUGMENT));
     }
 
     @Override

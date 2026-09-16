@@ -22,6 +22,6 @@ public class ItemUpgradeEmerald extends ItemUpgrade {
 
 
     public ItemUpgradeEmerald(Properties properties) {
-        super(properties, ironfurnaces.init.Registration.DIAMOND_FURNACE.get(), ironfurnaces.init.Registration.EMERALD_FURNACE.get());
+        super(properties, ironfurnaces.init.Registration.DIAMOND_FURNACE, ironfurnaces.init.Registration.EMERALD_FURNACE);
     }
 }

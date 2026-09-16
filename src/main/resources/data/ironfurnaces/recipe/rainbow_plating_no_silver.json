@@ -13,10 +13,13 @@
     "id": "ironfurnaces:rainbow_plating",
     "count": 8
   },
-  "neoforge:conditions": [
+  "fabric:load_conditions": [
     {
-      "type": "neoforge:tag_empty",
-      "tag": "c:ingots/silver"
+      "condition": "fabric:not",
+      "value": {
+        "condition": "fabric:tags_populated",
+        "values": ["c:ingots/silver"]
+      }
     }
   ]
 }

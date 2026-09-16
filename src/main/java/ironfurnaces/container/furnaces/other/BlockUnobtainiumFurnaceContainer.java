@@ -16,11 +16,10 @@
 
 package ironfurnaces.container.furnaces.other;
 
+import ironfurnaces.container.ClientMenuOpenPos;
 import ironfurnaces.container.furnaces.BlockIronFurnaceContainerBase;
 import ironfurnaces.init.Registration;
-import ironfurnaces.tileentity.furnaces.BlockCopperFurnaceTile;
 import ironfurnaces.tileentity.furnaces.other.BlockUnobtainiumFurnaceTile;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -28,8 +27,12 @@ import net.minecraft.world.level.Level;
 
 public class BlockUnobtainiumFurnaceContainer extends BlockIronFurnaceContainerBase {
 
+    public BlockUnobtainiumFurnaceContainer(int syncId, Inventory inv) {
+        this(syncId, inv.player.level(), ClientMenuOpenPos.forInventory(inv), inv, inv.player);
+    }
+
     public BlockUnobtainiumFurnaceContainer(int windowId, Level world, BlockPos pos, Inventory playerInventory, Player player) {
-        super(ironfurnaces.init.Registration.UNOBTAINIUM_FURNACE_CONTAINER.get(), windowId, world, pos, playerInventory, player);
+        super(ironfurnaces.init.Registration.UNOBTAINIUM_FURNACE_CONTAINER, windowId, world, pos, playerInventory, player);
         this.te = (BlockUnobtainiumFurnaceTile) world.getBlockEntity(pos);
     }
 

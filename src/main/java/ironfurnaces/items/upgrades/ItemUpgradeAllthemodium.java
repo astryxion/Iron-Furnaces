@@ -22,6 +22,6 @@ public class ItemUpgradeAllthemodium extends ItemUpgrade {
 
 
     public ItemUpgradeAllthemodium(Properties properties) {
-        super(properties, ironfurnaces.init.Registration.NETHERITE_FURNACE.get(), ironfurnaces.init.Registration.ALLTHEMODIUM_FURNACE.get());
+        super(properties, ironfurnaces.init.Registration.NETHERITE_FURNACE, ironfurnaces.init.Registration.ALLTHEMODIUM_FURNACE);
     }
 }

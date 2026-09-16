@@ -32,7 +32,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class BlockMillionFurnace extends BlockIronFurnaceBase {
 
@@ -51,7 +51,7 @@ public class BlockMillionFurnace extends BlockIronFurnaceBase {
     public void animateTick(BlockState state, Level world, BlockPos pos, RandomSource rand) {
         if (world.getBlockEntity(pos) != null && world.getBlockEntity(pos) instanceof BlockMillionFurnaceTile)
         {
-            if (((BlockMillionFurnaceTile)world.getBlockEntity(pos)).getItem(BlockMillionFurnaceTile.AUGMENT_BLUE).getItem() == ironfurnaces.init.Registration.GENERATOR_AUGMENT.get())
+            if (((BlockMillionFurnaceTile)world.getBlockEntity(pos)).getItem(BlockMillionFurnaceTile.AUGMENT_BLUE).getItem() == ironfurnaces.init.Registration.GENERATOR_AUGMENT)
             {
                 if (state.getValue(BlockMillionFurnace.RAINBOW_GENERATING)) {
                     for (Direction direction : Direction.values()) {
@@ -83,7 +83,7 @@ public class BlockMillionFurnace extends BlockIronFurnaceBase {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return createFurnaceTicker(level, type, ironfurnaces.init.Registration.MILLION_FURNACE_TILE.get());
+        return createFurnaceTicker(level, type, ironfurnaces.init.Registration.MILLION_FURNACE_TILE);
     }
 
     @Override
