@@ -37,16 +37,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.SlotItemHandler;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
 
 
 public abstract class BlockIronFurnaceContainerBase extends AbstractContainerMenu {
 
     protected BlockIronFurnaceTileBase te;
     protected Player playerEntity;
-    protected IItemHandler playerInventory;
+    protected Inventory playerInventory;
     protected final Level world;
     protected int fluidAmountMb;
     protected int fluidCapacityMb = 5000;
@@ -59,7 +56,7 @@ public abstract class BlockIronFurnaceContainerBase extends AbstractContainerMen
         super(containerType, windowId);
         this.te = (BlockIronFurnaceTileBase) world.getBlockEntity(pos);
         this.playerEntity = player;
-        this.playerInventory = new InvWrapper(playerInventory);
+        this.playerInventory = playerInventory;
         this.world = playerInventory.player.level();
 
         //FURNACE
@@ -828,18 +825,18 @@ public abstract class BlockIronFurnaceContainerBase extends AbstractContainerMen
     }
 
 
-    private int addSlotRange(IItemHandler handler, int index, int x, int y, int amount, int dx) {
+    private int addSlotRange(Inventory inventory, int index, int x, int y, int amount, int dx) {
         for (int i = 0 ; i < amount ; i++) {
-            addSlot(new SlotItemHandler(handler, index, x, y));
+            addSlot(new Slot(inventory, index, x, y));
             x += dx;
             index++;
         }
         return index;
     }
 
-    private int addSlotBox(IItemHandler handler, int index, int x, int y, int horAmount, int dx, int verAmount, int dy) {
+    private int addSlotBox(Inventory inventory, int index, int x, int y, int horAmount, int dx, int verAmount, int dy) {
         for (int j = 0 ; j < verAmount ; j++) {
-            index = addSlotRange(handler, index, x, y, horAmount, dx);
+            index = addSlotRange(inventory, index, x, y, horAmount, dx);
             y += dy;
         }
         return index;
