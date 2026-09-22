@@ -321,6 +321,7 @@ public abstract class BlockIronFurnaceScreenBase<T extends BlockIronFurnaceConta
 
     @Override
     public void extractBackground(GuiGraphicsExtractor matrix, int mouseX, int mouseY, float partialTicks) {
+        super.extractBackground(matrix, mouseX, mouseY, partialTicks);
         int relX = (this.width - this.imageWidth) / 2;
         int relY = (this.height - this.imageHeight) / 2;
         bg(matrix, relX, relY);
