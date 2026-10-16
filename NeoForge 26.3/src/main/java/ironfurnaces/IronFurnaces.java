@@ -61,7 +61,8 @@ public class IronFurnaces {
 
     public IronFurnaces(IEventBus modEventBus, ModContainer modContainer) {
 
-        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        // LOCAL replaced COMMON in NeoForge 26.3. Keep the old filename so existing configs still load.
+        modContainer.registerConfig(ModConfig.Type.LOCAL, Config.SPEC, "ironfurnaces-common.toml");
 
         modEventBus.addListener(ModSetup::init);
         modEventBus.addListener(this::registerCapabilities);
